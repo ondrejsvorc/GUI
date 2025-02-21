@@ -1,12 +1,120 @@
-﻿<Window x:Class="TodoListWpf.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TodoListWpf"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+﻿<Window 
+    x:Class="TodoListWpf.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="TODO List"
+    Height="600"
+    Width="700"
+    Background="#1E1E1E"
+    FontFamily="Segoe UI"
+    FontSize="14"
+    Foreground="#CCCCCC"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Center">
 
+    <!-- Mřízka, na níž umisťujeme prvky -->
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Seznam úkolů -->
+        <ListBox 
+            x:Name="listBoxTasks"
+            Grid.Row="0"
+            Margin="0,0,0,10"
+            SelectionChanged="ListBoxTasks_SelectionChanged"
+            Background="#2D2D30"
+            Foreground="#CCCCCC"
+            BorderBrush="#3E3E42"
+            BorderThickness="1" 
+        />
+
+        <!-- Panel s textovým polem a tlačítky -->
+        <StackPanel Grid.Row="1" Orientation="Vertical">
+            <!-- TextBox pro zadání/úpravu úkolu -->
+            <TextBox 
+                x:Name="textBoxTask"
+                Height="25"
+                Margin="0,0,0,5"
+                ToolTip="Zadejte nový nebo upravený úkol"
+                Background="#2D2D30"
+                Foreground="#CCCCCC"
+                BorderBrush="#3E3E42"
+                BorderThickness="1" 
+            />
+
+            <!-- Horizontální panel s tlačítky -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button 
+                    Content="Přidat"
+                    Click="AddTask_Click"
+                    Height="50"
+                    Width="150"
+                    Margin="10,0"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Background="#3E3E42"
+                    Foreground="#CCCCCC"
+                    BorderBrush="#565656"
+                    Cursor="Hand" 
+                />
+                <Button 
+                    Content="Aktualizovat"
+                    Click="UpdateTask_Click"
+                    Height="50"
+                    Width="150"
+                    Margin="10,0"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Background="#3E3E42"
+                    Foreground="#CCCCCC"
+                    BorderBrush="#565656"
+                    Cursor="Hand"
+                />
+                <Button 
+                    Content="Smazat"
+                    Click="DeleteTask_Click"
+                    Height="50"
+                    Width="150"
+                    Margin="10,0"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Background="#3E3E42"
+                    Foreground="#CCCCCC"
+                    BorderBrush="#565656"
+                    Cursor="Hand"
+                />
+            </StackPanel>
+            <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                <Button 
+                    Content="Uložit do souboru"
+                    Click="SaveTasks_Click"
+                    Height="50"
+                    Width="150"
+                    Margin="10,0"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Background="#3E3E42"
+                    Foreground="#CCCCCC"
+                    BorderBrush="#565656"
+                    Cursor="Hand"
+                />
+                <Button 
+                    Content="Načíst soubor"
+                    Click="LoadTasks_Click"
+                    Height="50"
+                    Width="150"
+                    Margin="10,0"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Background="#3E3E42"
+                    Foreground="#CCCCCC"
+                    BorderBrush="#565656"
+                    Cursor="Hand"
+                />
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Window>
