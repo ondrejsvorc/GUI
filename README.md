@@ -32,5 +32,4 @@ Celý náš hotový projekt si můžete stáhnout z GitHubu:
 
 ![Visual Studio Setup](images/image_1.png)
 
-
 3. Rozbalte soubor a otevřete projekt ve Visual Studiu.
