@@ -12,43 +12,130 @@
     HorizontalAlignment="Center"
     VerticalAlignment="Center">
 
-    <!-- Mřízka, na níž umisťujeme prvky -->
-    <Grid Margin="10">
+    <!-- Hlavní mřížka -->
+    <Grid 
+        Margin="10">
+
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition 
+                Height="*"/>
+            <RowDefinition 
+                Height="Auto"/>
+            <RowDefinition 
+                Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Seznam úkolů -->
-        <ListBox 
-            x:Name="listBoxTasks"
+        <!-- DataGrid pro zobrazení úkolů jako tabulka se třemi sloupci -->
+        <DataGrid 
+            x:Name="dataGridTasks"
             Grid.Row="0"
-            Margin="0,0,0,10"
-            SelectionChanged="ListBoxTasks_SelectionChanged"
+            AutoGenerateColumns="False"
+            CanUserAddRows="False"
+            IsReadOnly="True"
             Background="#2D2D30"
             Foreground="#CCCCCC"
             BorderBrush="#3E3E42"
-            BorderThickness="1" 
-        />
+            BorderThickness="1"
+            SelectionChanged="DataGridTasks_SelectionChanged"
+            RowHeaderWidth="0">
 
-        <!-- Panel s textovým polem a tlačítky -->
-        <StackPanel Grid.Row="1" Orientation="Vertical">
-            <!-- TextBox pro zadání/úpravu úkolu -->
-            <TextBox 
-                x:Name="textBoxTask"
-                Height="25"
-                Margin="0,0,0,5"
-                ToolTip="Zadejte nový nebo upravený úkol"
-                Background="#2D2D30"
-                Foreground="#CCCCCC"
-                BorderBrush="#3E3E42"
-                BorderThickness="1" 
-            />
+            <!-- Nastavení stylů pro záhlaví, buňky a řádky -->
+            <DataGrid.Resources>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#3E3E42"/>
+                    <Setter Property="Foreground" Value="#CCCCCC"/>
+                    <Setter Property="BorderBrush" Value="#565656"/>
+                </Style>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Background" Value="#2D2D30"/>
+                    <Setter Property="Foreground" Value="#CCCCCC"/>
+                    <Setter Property="BorderBrush" Value="#565656"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="BorderBrush" Value="Yellow"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="#2D2D30"/>
+                    <Setter Property="Foreground" Value="#CCCCCC"/>
+                    <Setter Property="BorderBrush" Value="#565656"/>
+                </Style>
+            </DataGrid.Resources>
 
-            <!-- Horizontální panel s tlačítky -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <DataGrid.Columns>
+                <!-- Sloupec pro název úkolu -->
+                <DataGridTextColumn 
+                    Header="Title" 
+                    Binding="{Binding Title}"
+                    Width="*"/>
+
+                <!-- Sloupec pro typ úkolu -->
+                <DataGridTextColumn 
+                    Header="Type" 
+                    Binding="{Binding Type}"
+                    Width="150"/>
+
+                <!-- Sloupec pro stav úkolu -->
+                <DataGridCheckBoxColumn 
+                    Header="Done" 
+                    Binding="{Binding IsDone}"
+                    Width="100"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel 
+            Grid.Row="1"
+            Orientation="Vertical"
+            Margin="0,10,0,0">
+
+            <!-- Panel se vstupními prvky -->
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                Margin="0,0,0,5">
+
+                <!-- TextBox pro název úkolu -->
+                <TextBox 
+                    x:Name="textBoxTask"
+                    Width="200"
+                    Height="25"
+                    Margin="5"
+                    ToolTip="Enter a new or updated task"
+                    Background="#2D2D30"
+                    Foreground="#CCCCCC"
+                    BorderBrush="#3E3E42"
+                    BorderThickness="1"/>
+
+                <!-- ComboBox pro výběr typu úkolu -->
+                <ComboBox 
+                    x:Name="comboBoxTaskType"
+                    Width="150"
+                    Height="25"
+                    Margin="5"
+                    Background="#CCCCCC"
+                    Foreground="#2D2D30"
+                    BorderBrush="#3E3E42"
+                    BorderThickness="1"
+                    ToolTip="Select task type">
+                </ComboBox>
+
+                <!-- CheckBox pro nastavení stavu úkolu -->
+                <CheckBox 
+                    x:Name="checkBoxIsDone"
+                    Content="Done"
+                    VerticalAlignment="Center"
+                    Margin="5"
+                    Foreground="#CCCCCC"/>
+            </StackPanel>
+
+            <!-- Panel pro tlačítka (přidat/aktualizovat/smazat úkol) -->
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Center">
+
                 <Button 
-                    Content="Přidat"
+                    Content="Add New Task"
                     Click="AddTask_Click"
                     Height="50"
                     Width="150"
@@ -58,10 +145,10 @@
                     Background="#3E3E42"
                     Foreground="#CCCCCC"
                     BorderBrush="#565656"
-                    Cursor="Hand" 
-                />
+                    Cursor="Hand"/>
+
                 <Button 
-                    Content="Aktualizovat"
+                    Content="Update Task"
                     Click="UpdateTask_Click"
                     Height="50"
                     Width="150"
@@ -71,10 +158,10 @@
                     Background="#3E3E42"
                     Foreground="#CCCCCC"
                     BorderBrush="#565656"
-                    Cursor="Hand"
-                />
+                    Cursor="Hand"/>
+
                 <Button 
-                    Content="Smazat"
+                    Content="Delete Task"
                     Click="DeleteTask_Click"
                     Height="50"
                     Width="150"
@@ -84,37 +171,42 @@
                     Background="#3E3E42"
                     Foreground="#CCCCCC"
                     BorderBrush="#565656"
-                    Cursor="Hand"
-                />
+                    Cursor="Hand"/>
             </StackPanel>
-            <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                <Button 
-                    Content="Uložit do souboru"
-                    Click="SaveTasks_Click"
-                    Height="50"
-                    Width="150"
-                    Margin="10,0"
-                    FontSize="16"
-                    FontWeight="SemiBold"
-                    Background="#3E3E42"
-                    Foreground="#CCCCCC"
-                    BorderBrush="#565656"
-                    Cursor="Hand"
-                />
-                <Button 
-                    Content="Načíst soubor"
-                    Click="LoadTasks_Click"
-                    Height="50"
-                    Width="150"
-                    Margin="10,0"
-                    FontSize="16"
-                    FontWeight="SemiBold"
-                    Background="#3E3E42"
-                    Foreground="#CCCCCC"
-                    BorderBrush="#565656"
-                    Cursor="Hand"
-                />
-            </StackPanel>
+        </StackPanel>
+
+        <!-- Panel pro operace se soubory -->
+        <StackPanel 
+            Grid.Row="2"
+            Orientation="Horizontal"
+            HorizontalAlignment="Center"
+            Margin="0,10,0,0">
+
+            <Button 
+                Content="Save to File"
+                Click="SaveTasks_Click"
+                Height="50"
+                Width="150"
+                Margin="10,0"
+                FontSize="16"
+                FontWeight="SemiBold"
+                Background="#3E3E42"
+                Foreground="#CCCCCC"
+                BorderBrush="#565656"
+                Cursor="Hand"/>
+
+            <Button 
+                Content="Load from File"
+                Click="LoadTasks_Click"
+                Height="50"
+                Width="150"
+                Margin="10,0"
+                FontSize="16"
+                FontWeight="SemiBold"
+                Background="#3E3E42"
+                Foreground="#CCCCCC"
+                BorderBrush="#565656"
+                Cursor="Hand"/>
         </StackPanel>
     </Grid>
 </Window>

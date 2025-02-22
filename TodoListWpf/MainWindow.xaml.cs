@@ -1,29 +1,29 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace TodoListWpf;
 
 /// <summary>
-/// Interakční logika pro MainWindow.
+/// Interakční logika pro MainWindow.xaml.
 /// </summary>
 public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Kolekce úkolů, která automaticky aktualizuje UI při změně.
-    /// </summary>
-    private readonly ObservableCollection<TodoItem> Tasks = [];
+    private readonly ITaskService _taskService = new TaskService();
 
     public MainWindow()
     {
         InitializeComponent();
 
-        // Nastavení datového zdroje ListBoxu
-        listBoxTasks.ItemsSource = Tasks;
+        // Nastavení datových zdrojů.
+        dataGridTasks.ItemsSource = _taskService.Tasks;
+        comboBoxTaskType.ItemsSource = Enum.GetValues(typeof(TaskType));
+
+        // Nastavení výchozí hodnoty pro ComboBox.
+        comboBoxTaskType.SelectedItem = TaskType.Other;
     }
 
     /// <summary>
-    /// Přidá nový úkol do kolekce, pokud není text prázdný.
+    /// Přidá nový úkol, pokud má vyplněný název.
     /// </summary>
     private void AddTask_Click(object sender, RoutedEventArgs e)
     {
@@ -39,7 +39,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Odstraní vybraný úkol z kolekce.
+    /// Odstraní vybraný úkol.
     /// </summary>
     private void DeleteTask_Click(object sender, RoutedEventArgs e)
     {
@@ -47,9 +47,9 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Při změně výběru v ListBoxu zobrazí vybraný úkol v textovém poli.
+    /// Zobrazí vybraný úkol ve vstupních prvcích při změně výběru v DataGridu.
     /// </summary>
-    private void ListBoxTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
 
     }
@@ -63,7 +63,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Načtění úkolů ze souboru.
+    /// Načte úkoly ze souboru.
     /// </summary>
     private void LoadTasks_Click(object sender, RoutedEventArgs e)
     {
