@@ -14,7 +14,7 @@ Než začnete s vývojem, ujistěte se, že máte nainstalovány následující 
 
 Pokud jej nemáte, stáhněte si ho z oficiálních stránek: https://visualstudio.microsoft.com/cs/downloads/
 
-Při instalaci vyberte "Vývoj desktopových aplikací pomocí .NET" a zaškrtněte WPF a WinForms.
+Při instalaci vyberte "Vývoj desktopových aplikací pomocí .NET".
 
 ![Visual Studio Setup](images/image_2.png)
 
