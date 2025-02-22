@@ -33,3 +33,15 @@ Celý náš hotový projekt si můžete stáhnout z GitHubu:
 ![Visual Studio Setup](images/image_1.png)
 
 3. Rozbalte soubor a otevřete projekt ve Visual Studiu.
+
+
+## Funkce
+
+### Přidávání úkolů
+### Nastavení typu úkolu (pracovní, univerzitní, osobní, jiný)
+### Nastavení stavu úkolu (dokončený/nedokončený)
+### Odebírání úkolů
+### Úprava úkolů
+### ukládání úkolů do souboru (JSON)
+### Načítání úkolů ze souboru (JSON)
+
