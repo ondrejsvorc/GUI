@@ -281,3 +281,8 @@ Podobně jako grid slouží k pozicování. Je jednodimenzionální, řadí prvk
     </Grid>
 </Window>
 ```
+## Tvorba logiky programu
+### Vytvoření Třídy TaskItem a TaskType
+V našem řešení (solution) si vytvoříme novou třídu TaskItem. 
+
+
