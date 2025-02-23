@@ -13,9 +13,7 @@
     VerticalAlignment="Center">
 
     <!-- Hlavní mřížka -->
-    <Grid 
-        Margin="10">
-
+    <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition 
                 Height="*"/>
@@ -36,8 +34,7 @@
             Foreground="#CCCCCC"
             BorderBrush="#3E3E42"
             BorderThickness="1"
-            SelectionChanged="DataGridTasks_SelectionChanged"
-            RowHeaderWidth="0">
+            SelectionChanged="DataGridTasks_SelectionChanged">
 
             <!-- Nastavení stylů pro záhlaví, buňky a řádky -->
             <DataGrid.Resources>
