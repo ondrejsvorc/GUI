@@ -62,3 +62,4 @@ Tvoří základní prostor, na který budeme postupně přídavat naše další 
     Foreground="#CCCCCC"
     HorizontalAlignment="Center"
     VerticalAlignment="Center">
+</Window>
