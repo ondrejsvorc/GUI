@@ -27,7 +27,18 @@ public partial class MainWindow : Window
     /// </summary>
     private void AddTask_Click(object sender, RoutedEventArgs e)
     {
+        string title = textBoxTask.Text.Trim();
+        TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
+        bool isDone = checkBoxIsDone.IsChecked == true;
 
+        OperationResult result = _taskService.AddTask(title, type, isDone);
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        textBoxTask.Clear();
     }
 
     /// <summary>
@@ -35,7 +46,21 @@ public partial class MainWindow : Window
     /// </summary>
     private void UpdateTask_Click(object sender, RoutedEventArgs e)
     {
+        if (dataGridTasks.SelectedItem is not TaskItem task)
+        {
+            MessageBox.Show("Select task to update.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
 
+        string title = textBoxTask.Text.Trim();
+        TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
+        bool isDone = checkBoxIsDone.IsChecked == true;
+
+        OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     /// <summary>
@@ -51,7 +76,16 @@ public partial class MainWindow : Window
     /// </summary>
     private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (dataGridTasks.SelectedItem is null)
+        {
+            return;
+        }
 
+        TaskItem task = (TaskItem)dataGridTasks.SelectedItem;
+
+        textBoxTask.Text = task.Title;
+        comboBoxTaskType.SelectedItem = task.Type;
+        checkBoxIsDone.IsChecked = task.IsDone;
     }
 
     /// <summary>
