@@ -64,3 +64,32 @@ Tvoří základní prostor, na který budeme postupně přídavat naše další 
     HorizontalAlignment="Center"
     VerticalAlignment="Center">
 ```
+###Grid
+Grid je neviditelná mřížka, která zabírá celý prostor okna a pomáhá nam pozicovat prvky. "Grid Margin" - odsazení mřížky, a tudíž i prvků, od okrajů okna. "Grid.RowDefinitions" - párovy tag, slouží k přímému pozicování prvků. Jelikož naše okno chceme rozdělit na tři horizontální části, tak potřebujeme nadefinovat tři řádky, ve kterých budou naše prvky. 1. RowDefinition - "Height" = *, znamená, že chceme aby výška řádku zabírala 1/n prostoru okna, kde n = počet řádku, v našem případě jedna třetina protoru. 2. a 3. řádek, "Height" = Auto - výška řádku se automaticky přizpůsobí podle obsahu. 
+```    
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition 
+                Height="*"/>
+            <RowDefinition 
+                Height="Auto"/>
+            <RowDefinition 
+                Height="Auto"/>
+        </Grid.RowDefinitions>
+```
+###DataGrid
+
+
+```
+<DataGrid 
+            x:Name="dataGridTasks"
+            Grid.Row="0"
+            AutoGenerateColumns="False"
+            CanUserAddRows="False"
+            IsReadOnly="True"
+            Background="#2D2D30"
+            Foreground="#CCCCCC"
+            BorderBrush="#3E3E42"
+            BorderThickness="1"
+            SelectionChanged="DataGridTasks_SelectionChanged">
+```
