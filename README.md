@@ -303,6 +303,46 @@ public record TaskItem(Guid Id, string Title, TaskType Type = TaskType.Other, bo
 /// </summary>
 public enum TaskType { Work = 0, University = 1, Personal = 2, Other = 3 }
 ```
+Nyní vytvoříme nový soubor se jménem TaskService.cs, který bude obsahovat interface ITaskService, třídu TaskService : ITaskService a record OperationResult. ITaskService není přímo nutný interface, ale pomůže nám v ujasnění logiky a metod potřebných k fungovaní aplikace. Metody ITaskService nám vrací hodnoty typu OperationResult, kvůli ověřovaní zda operace proběhly úspěšně nebo ne. Typ OperationResult naprogramujeme níže.
+
+```
+using System.Collections.ObjectModel;
+
+namespace TodoListWpf;
+
+public interface ITaskService
+{
+    /// <summary>
+    /// Kolekce úkolů.
+    /// </summary>
+    public ObservableCollection<TaskItem> Tasks { get; }
+
+    /// <summary>
+    /// Přidá nový úkol.
+    /// </summary>
+    public OperationResult AddTask(string title, TaskType type, bool isDone);
+
+    /// <summary>
+    /// Aktualizuje zadaný úkol.
+    /// </summary>
+    public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone);
+
+    /// <summary>
+    /// Odstraní zadaný úkol.
+    /// </summary>
+    public OperationResult DeleteTask(TaskItem task);
+
+    /// <summary>
+    /// Uloží úkoly do souboru.
+    /// </summary>
+    public OperationResult SaveTasks();
+
+    /// <summary>
+    /// Načte úkoly ze souboru.
+    /// </summary>
+    public OperationResult LoadTasks();
+}
+```
 
 
 
