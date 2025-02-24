@@ -343,6 +343,146 @@ public interface ITaskService
     public OperationResult LoadTasks();
 }
 ```
+Před implementací ITaskService si vytvoříme record typ OperationResult. Tento typ nám pomocí metod Success a Failure vrací boolean hodnotu + ErrorMessage, která může být null anebo string. Metody se volají na základě If statementů níže v kódu. Obsah ErrorMessage se definuje pro jednotlivé případy také na základě If statementů.
+```
+/// <summary>
+/// Reprezentuje výsledek operace, např. při přidávání, aktualizaci či mazání úkolu.
+/// Obsahuje informaci o tom, zda operace proběhla úspěšně, a případnou chybovou zprávu, pokud došlo k selhání.
+/// </summary>
+/// <param name="IsSuccess">Indikuje, zda operace byla úspěšná.</param>
+/// <param name="ErrorMessage">Chybová zpráva, pokud operace selhala; jinak null.</param>
+public record OperationResult(bool IsSuccess, string? ErrorMessage)
+{
+    /// <summary>
+    /// Vytvoří a vrátí úspěšný výsledek operace.
+    /// </summary>
+    public static OperationResult Success() => new(true, null);
+
+    /// <summary>
+    /// Vytvoří a vrátí neúspěšný výsledek operace s uvedenou chybovou zprávou.
+    /// </summary>
+    /// <param name="errorMessage">Text chybové zprávy popisující důvod neúspěchu operace.</param>
+    public static OperationResult Failure(string errorMessage) => new(false, errorMessage);
+}
+```
+Předpřipravíme si implementaci ITaskService ve formě třídy TaskService. Jelikož naše aplikace bude umět zapisovat/načítat úkoly do/ze souboru, je potřeba ho vytvořit, pojmenovat, a definat k němu cestu. Samotná třída TaskService si bude sama držet kolekci úkolů pro jejich přímou manipulaci v aplikaci.
+
+```
+/// <summary>
+/// Služba pro správu úkolů.
+/// </summary>
+public class TaskService(string path = "tasks.json") : ITaskService
+{
+    /// <inheritdoc/>
+    public ObservableCollection<TaskItem> Tasks { get; } = [];
+
+    /// <inheritdoc/>
+    public OperationResult AddTask(string title, TaskType type, bool isDone)
+    {
+       throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public OperationResult DeleteTask(TaskItem task)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public OperationResult SaveTasks()
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public OperationResult LoadTasks()
+    {
+        throw new NotImplementedException();
+    }
+}
+```
+Otevřeme si soubor MainWindow.xaml.cs kde zinicializuje uživatelské okno nadefinované v souboru MainWindow.xaml. Zde budou také naprogramovaní event handlers (viz prezentace). Event handlers budou propojeni s metodami v třídě TaskService. Při vytváření třídy MainWindow je potřeba vytvořit privátní objekt _taskService jakožto objekt třídy TaskService. Jeho vytvoření je nutné pro správu úkolů na popředí i pozadí aplikace, avšak nemusí byt přístupný pro třídy mimo MainWindow. Poté je nutno nastavit datové zdroje pro datagrid (kolekce kterou si náš objekt _taskService drží) a pro combobox ( TaskTypes z výše definovaného typu). Poslední krok při inicializici okna je nastavení defaultní hodnoty comboboxu na Other (TaskType). Kromě funkcí, které má _taskService definované (a zároveň které máme definované jako UI v XAML souboru) musíme naprogramovat i funkci DataGridTasks_SelectionChanged(), kterou jsme při tvorbě XAML kódu nastavili jako event handlera v případě, že uživatel klikne na jeden z řádku na datagridu.
+```
+using System.Windows;
+using System.Windows.Controls;
+
+namespace TodoListWpf;
+
+/// <summary>
+/// Interakční logika pro MainWindow.xaml.
+/// </summary>
+public partial class MainWindow : Window
+{
+    private readonly ITaskService _taskService = new TaskService();
+
+    public MainWindow()
+    {
+        InitializeComponent();
+
+        // Nastavení datových zdrojů.
+        dataGridTasks.ItemsSource = _taskService.Tasks;
+        comboBoxTaskType.ItemsSource = Enum.GetValues(typeof(TaskType));
+
+        // Nastavení výchozí hodnoty pro ComboBox.
+        comboBoxTaskType.SelectedItem = TaskType.Other;
+    }
+
+    /// <summary>
+    /// Přidá nový úkol, pokud má vyplněný název.
+    /// </summary>
+    private void AddTask_Click(object sender, RoutedEventArgs e)
+    {
+        
+    }
+
+    /// <summary>
+    /// Aktualizuje vybraný úkol s novým textem z textového pole.
+    /// </summary>
+    private void UpdateTask_Click(object sender, RoutedEventArgs e)
+    {
+        
+    }
+
+    /// <summary>
+    /// Odstraní vybraný úkol.
+    /// </summary>
+    private void DeleteTask_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    /// <summary>
+    /// Zobrazí vybraný úkol ve vstupních prvcích při změně výběru v DataGridu.
+    /// </summary>
+    private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        
+    }
+
+    /// <summary>
+    /// Uloží úkoly do souboru.
+    /// </summary>
+    private void SaveTasks_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    /// <summary>
+    /// Načte úkoly ze souboru.
+    /// </summary>
+    private void LoadTasks_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+}
+```
+
 
 
 
