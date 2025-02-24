@@ -285,7 +285,7 @@ Podobně jako grid slouží k pozicování. Je jednodimenzionální, řadí prvk
 ### Vytvoření record TaskItem a enum TaskType
 V našem řešení (solution) si vytvoříme nový soubor se jménem TaskItem. To uděláme kliknutím pravého tlačítks myši na libovolný prostor prostor v panelu Průzkumník řšení - zobrazení složek (jenom ne na složku obj nebo bin moc prosím..třeba kliknout pravým na ToDoListWpf.csproj je fajn alternativou) a vybereme možnost Přidat -> Nový Soubor. Nový soubor přejmenujeme na TaskItem.cs .
 ![Visual Studio Setup](images/vytvorTyp0.png)
-Nyní můžeme naprogramovat chovaní těchto dvou typů. Nebudeme je zbytečně programovat jako třídy, protože vzhledem k jejich využití v logice programu to není potřeba, nebo by to dokonce mohlo být na škodu. Potřebujeme nadefinovat ve kterém jmenném prostoru se pohybujeme. Vytvoříme typ record TaskItem s potřebnými vlastnostmi Id třídy Guid, Title neboli co je úkolem v ToDo Listu, Typ typu enum, který představuje čeho se náš úkol týká a IsDone, který nám implicitně říká, že úkol ještě hotový není. Poté si vytvoříme potřebný typ enum TaskType, který má přirazené pojmenované položky k celým číslům.
+Nyní můžeme naprogramovat chovaní těchto dvou typů. Nebudeme je zbytečně programovat jako třídy, protože vzhledem k jejich využití v logice programu to není potřeba, nebo by to dokonce mohlo být na škodu. Potřebujeme nadefinovat ve kterém jmenném prostoru se pohybujeme (namespace ToDoListWpf) . Vytvoříme typ record TaskItem s potřebnými vlastnostmi Id třídy Guid (Global unique identifier), Title neboli co je úkolem v ToDo Listu, Type typu TaskType (typ enum TaskType naprogramujeme níže), který představuje čeho se náš úkol týká a IsDone, který nám defaultně říká, že úkol ještě hotový není. "Record" může být v C# považován za třídu, ale jde spíše o strukturovaný typ určený primárně pro ukládání neměnných dat ( https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/records ). Poté si vytvoříme potřebný typ enum TaskType, který má přirazené pojmenované položky k celým číslům. "Enum"  je hoodnotový výčtový typ. Tento výčtový typ používáme k reprezentaci volby z množiny vzájemně se vylučujících hodnot nebo jako kombinaci voleb. Hodnoty jsou defaultně přirazovány k intigerům začínaje 0, avšak toto nastavení jde změnit. ( https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/enum )
 ```
 namespace TodoListWpf;
 
@@ -303,5 +303,6 @@ public record TaskItem(Guid Id, string Title, TaskType Type = TaskType.Other, bo
 /// </summary>
 public enum TaskType { Work = 0, University = 1, Personal = 2, Other = 3 }
 ```
+
 
 
