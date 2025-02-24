@@ -9,7 +9,7 @@ We will demonstrate the process of creating this application step by step.
 
 Before you start development, make sure you have the following tools installed:
 
-1. **Visual Studio**
+1. **Visual Studio 2022**
 
 If you don’t have it, download it from the official website: https://visualstudio.microsoft.com/cs/downloads/
 
