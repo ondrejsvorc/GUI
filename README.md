@@ -282,7 +282,26 @@ Podobně jako grid slouží k pozicování. Je jednodimenzionální, řadí prvk
 </Window>
 ```
 ## Tvorba logiky programu
-### Vytvoření Třídy TaskItem a TaskType
-V našem řešení (solution) si vytvoříme novou třídu TaskItem. 
+### Vytvoření record TaskItem a enum TaskType
+V našem řešení (solution) si vytvoříme nový soubor se jménem TaskItem. Klikneme pravým tlačítkem myši na prázdný prostor v panelu Průzkumník složek - zobrazení složek a vybereme možnost Přidat -> Nový Soubor. Nový soubor přejmenujeme na TaskItem.cs .
+![Visual Studio Setup](images/vytvorTridu0.png)
+Nyní můžeme naprogramovat chovaní těchto dvou typů. Nebudeme je zbytečně programovat jako třídy, protože vzhledem k jejich využití v logice programu to není potřeba, nebo by to dokonce mohlo být na škodu. Potřebujeme nadefinovat ve kterém jmenném prostoru se pohybujeme. Vytvoříme typ record TaskItem s potřebnými vlastnostmi Id třídy Guid, Title neboli co je úkolem v ToDo Listu, Typ typu enum, který představuje čeho se náš úkol týká a IsDone, který nám implicitně říká, že úkol ještě hotový není. Poté si vytvoříme potřebný typ enum TaskType, který má přirazené pojmenované položky k celým číslům.
+```
+namespace TodoListWpf;
+
+/// <summary>
+/// Reprezentuje úkol.
+/// </summary>
+/// <param name="Id">Identifikátor úkolu.</param>
+/// <param name="Title">Název úkolu.</param>
+/// <param name="Type">Typ úkolu.</param>
+/// <param name="IsDone">Stav úkolu.</param>
+public record TaskItem(Guid Id, string Title, TaskType Type = TaskType.Other, bool IsDone = false);
+
+/// <summary>
+/// Reprezentuje typ úkolu.
+/// </summary>
+public enum TaskType { Work = 0, University = 1, Personal = 2, Other = 3 }
+```
 
 
