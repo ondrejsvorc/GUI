@@ -10,7 +10,7 @@ Budeme demonstrovat proces tvorby této aplikace krok za krokem.
 
 Než začnete s vývojem, ujistěte se, že máte nainstalovány následující nástroje:
 
-1. **Visual Studio**
+1. **Visual Studio 2022**
 
 Pokud jej nemáte, stáhněte si ho z oficiálních stránek: https://visualstudio.microsoft.com/cs/downloads/
 
