@@ -283,8 +283,8 @@ Podobně jako grid slouží k pozicování. Je jednodimenzionální, řadí prvk
 ```
 ## Tvorba logiky programu
 ### Vytvoření record TaskItem a enum TaskType
-V našem řešení (solution) si vytvoříme nový soubor se jménem TaskItem. Klikneme pravým tlačítkem myši na prázdný prostor v panelu Průzkumník složek - zobrazení složek a vybereme možnost Přidat -> Nový Soubor. Nový soubor přejmenujeme na TaskItem.cs .
-![Visual Studio Setup](images/vytvorTridu0.png)
+V našem řešení (solution) si vytvoříme nový soubor se jménem TaskItem. To uděláme kliknutím pravého tlačítks myši na libovolný prostor prostor v panelu Průzkumník řšení - zobrazení složek (jenom ne na složku obj nebo bin moc prosím..třeba kliknout pravým na ToDoListWpf.csproj je fajn alternativou) a vybereme možnost Přidat -> Nový Soubor. Nový soubor přejmenujeme na TaskItem.cs .
+![Visual Studio Setup](images/vytvorTyp0.png)
 Nyní můžeme naprogramovat chovaní těchto dvou typů. Nebudeme je zbytečně programovat jako třídy, protože vzhledem k jejich využití v logice programu to není potřeba, nebo by to dokonce mohlo být na škodu. Potřebujeme nadefinovat ve kterém jmenném prostoru se pohybujeme. Vytvoříme typ record TaskItem s potřebnými vlastnostmi Id třídy Guid, Title neboli co je úkolem v ToDo Listu, Typ typu enum, který představuje čeho se náš úkol týká a IsDone, který nám implicitně říká, že úkol ještě hotový není. Poté si vytvoříme potřebný typ enum TaskType, který má přirazené pojmenované položky k celým číslům.
 ```
 namespace TodoListWpf;
