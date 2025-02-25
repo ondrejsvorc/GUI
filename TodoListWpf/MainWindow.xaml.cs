@@ -82,7 +82,8 @@ public partial class MainWindow : Window
         {
             MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
-        
+        textBoxTask.Clear();
+
 
     }
 
