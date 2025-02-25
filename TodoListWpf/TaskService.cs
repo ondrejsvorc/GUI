@@ -1,4 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
+using System.Text.Json;
+using System.Web;
 
 namespace TodoListWpf;
 
@@ -71,13 +74,42 @@ public class TaskService(string path = "tasks.json") : ITaskService
     /// <inheritdoc/>
     public OperationResult SaveTasks()
     {
-        throw new NotImplementedException();
+        try
+        {
+            string json = JsonSerializer.Serialize(Tasks, new JsonSerializerOptions() { WriteIndented = true });
+            File.WriteAllText(path, json);
+        }
+        catch
+        {
+            return OperationResult.Failure("Tasks could not be saved to file.");
+        }
+
+        return OperationResult.Success();
     }
 
     /// <inheritdoc/>
     public OperationResult LoadTasks()
     {
-        throw new NotImplementedException();
+        if (!File.Exists(path))
+        {
+            File.WriteAllText(path, "[]");
+        }
+
+        string json = File.ReadAllText(path);
+
+        ObservableCollection<TaskItem>? tasks = JsonSerializer.Deserialize<ObservableCollection<TaskItem>>(json);
+        if (tasks is null)
+        {
+            return OperationResult.Failure("Tasks could not be loaded from file.");
+        }
+
+        Tasks.Clear();
+        foreach (TaskItem task in tasks)
+        {
+            Tasks.Add(task);
+        }
+
+        return OperationResult.Success();
     }
 }
 
