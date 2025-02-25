@@ -53,7 +53,7 @@ flowchart TD
     User --> LoadTasks[Load Tasks]
 ```
 
-# Creating a DoToList in WPF
+# Creating a TODO List in WPF
 ## Designing the Interface in XAML
 Pay attention to indentation. "<" - marks the start of a tag, "/>"" or "</" - marks the end of a tag.
 
