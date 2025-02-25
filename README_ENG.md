@@ -51,15 +51,15 @@ Pay attention to indentation. "<" - marks the start of a tag, "/>"" or "</" - ma
 
 The Window serves as the main container where we will gradually add and nest other elements. It is the foundation of the application—without it, the desktop application wouldn't be displayed.
 
-- **x:Class** – This refers to the class associated with the XAML file. In our case, it points to the `MainWindow` class within the `TodoListWpf` namespace.
-- **xmlns, xmlns:x** – These define the XAML schema. The URLs provide the source of tag definitions. Without them, the XAML tags wouldn't be recognized by the program. The URLs may change when using different libraries.
-- **Title** – The title of the application.
-- **Height, Width** – Specifies the window's height and width.
-- **Background** – Defines the background color of the window in hexadecimal format.
-- **FontFamily** – Specifies the font for the main window and all its elements.
-- **FontSize** – Determines the font size.
-- **ForeGround** – Sets the text color in hexadecimal format.
-- **HorizontalAlignment** – Defines the alignment of the application window on the user's screen.
+- **`x:Class`** – This refers to the class associated with the XAML file. In our case, it points to the `MainWindow` class within the `TodoListWpf` namespace.
+- **`xmlns, xmlns:x`** – These define the XAML schema. The URLs provide the source of tag definitions. Without them, the XAML tags wouldn't be recognized by the program. The URLs may change when using different libraries.
+- **`Title`** – The title of the application.
+- **`Height, Width`** – Specifies the window's height and width.
+- **`Background`** – Defines the background color of the window in hexadecimal format.
+- **`FontFamily`** – Specifies the font for the main window and all its elements.
+- **`FontSize`** – Determines the font size.
+- **`ForeGround`** – Sets the text color in hexadecimal format.
+- **`HorizontalAlignment`** – Defines the alignment of the application window on the user's screen.
 ```
 <Window 
     x:Class="TodoListWpf.MainWindow"
