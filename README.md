@@ -423,7 +423,7 @@ public class TaskService(string path = "tasks.json") : ITaskService
 }
 ```
 
-Otevřeme si soubor MainWindow.xaml.cs kde zinicializuje uživatelské okno nadefinované v souboru MainWindow.xaml. Zde budou také naprogramovaní event handlers (viz prezentace). Event handlers budou propojeni s metodami v třídě TaskService. Při vytváření třídy MainWindow je potřeba vytvořit privátní objekt _taskService jakožto objekt třídy TaskService. Jeho vytvoření je nutné pro správu úkolů na popředí i pozadí aplikace, avšak nemusí byt přístupný pro třídy mimo MainWindow. Poté je nutno nastavit datové zdroje pro datagrid (kolekce kterou si náš objekt _taskService drží) a pro combobox ( TaskTypes z výše definovaného typu). Poslední krok při inicializici okna je nastavení defaultní hodnoty comboboxu na Other (TaskType). Kromě funkcí, které má _taskService definované (a zároveň které máme definované jako UI v XAML souboru) musíme naprogramovat i funkci DataGridTasks_SelectionChanged(), kterou jsme při tvorbě XAML kódu nastavili jako event handlera v případě, že uživatel klikne na jeden z řádku na datagridu.
+Otevřeme si soubor MainWindow.xaml.cs kde se zinicializuje uživatelské okno nadefinované v souboru MainWindow.xaml. Zde budou také naprogramovaní event handlers (viz prezentace). Event handlers budou propojeni s metodami v třídě TaskService. Při vytváření třídy MainWindow je potřeba vytvořit privátní objekt _taskService jakožto objekt třídy TaskService. Jeho vytvoření je nutné pro správu úkolů na popředí i pozadí aplikace, avšak nemusí byt přístupný pro třídy mimo MainWindow. Poté je nutno nastavit datové zdroje pro datagrid (kolekce kterou si náš objekt _taskService drží) a pro combobox ( TaskTypes z výše definovaného typu). Poslední krok při inicializici okna je nastavení defaultní hodnoty comboboxu na Other (TaskType). Kromě funkcí, které má _taskService definované (a zároveň které máme definované jako UI v XAML souboru) musíme naprogramovat i funkci DataGridTasks_SelectionChanged(), kterou jsme při tvorbě XAML kódu nastavili jako event handlera v případě, že uživatel klikne na jeden z řádku na datagridu.
 ```
 using System.Windows;
 using System.Windows.Controls;
@@ -497,4 +497,124 @@ public partial class MainWindow : Window
 
     }
 }
+```
+### Add Task
+Začneme s nejzákladnější metodou. Kód níže patří do funkce  private void AddTask_Click(object sender, RoutedEventArgs e). První krok je získat informace z uživatelského rozhraní - Textbox, ComboBox, CheckBox. Jelikož hodnota z CheckBOxu může být i null, je potřeba se ujistit, že proměnná isDone bude třídy boolean. Toho dosáhneme porovnáním s hodnotou true. 
+
+```
+    string title = textBoxTask.Text.Trim();
+    TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
+    bool isDone = checkBoxIsDone.IsChecked == true;
+
+    OperationResult result = _taskService.AddTask(title, type, isDone);
+   
+```
+Poté je získáne hodnoty potřeba poměřit ve funkci public OperationResult AddTask(string title, TaskType type, bool isDone) ve třídě TaskService (pomocí zavolání funkce objektu _taskSevice.AddTask(title, type, isDone) a jejího uložení jejího výsledku do proměnné result). Pokud jsou hodnoty platné, funkce vrátí OperationResult.Success(), hodnoty přetypuje na TaskItem a uloží si jej do kolekce. V opačném případě vrátí OperationResult.Failure() s vhodnou ErrorMessage a hodnoty nikam neuloží. Neplatné hodnoty jsou případech, kdy je název úkolu (title) prázdný anebo null, nebo když se již ten samý úkol v kolekci Tasks vyskytuje.
+```
+ public OperationResult AddTask(string title, TaskType type, bool isDone)
+ {
+     if (string.IsNullOrEmpty(title))
+     {
+         return OperationResult.Failure("Title cannot be empty.");
+     }
+
+     foreach (TaskItem task in Tasks)
+     {
+         if (task.Title.ToLower() == title.ToLower() && task.Type == type)
+         {
+             return OperationResult.Failure("Task with this title already exists.");
+         }
+     }
+
+     TaskItem taskItem = new TaskItem(Guid.NewGuid(), title, type, isDone);
+     Tasks.Add(taskItem);
+     return OperationResult.Success();
+ }
+
+```
+Vracíme se do funkce AddTask_Click(object sender, RoutedEventArgs e) v souboru MainWiwndow.xaml.cs. Pokud byly uživatelské hodnoty neplatné, vypíšeme ErrorMessage. Ke konci funkceme vymažeme TextBoxTask, aby byl připraven pro další uživatelský vstup
+```
+if (!result.IsSuccess)
+{
+    MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+    return;
+}
+
+textBoxTask.Clear();
+```
+### DataGridTasks_SelectionChanged
+Čas na slíbenou metodu. Ze začátku potřebujeme ošetřit případ, kdy není zvolen žádný řádek tabulky (žádný objekt TaskItem), ale uživatel přesto potřebuje tuto metodu využít. To vyřešíme jednoduchým vystoupením z funkce pomocí return. v dalších řádcích si prostě uložíme již existujicí objekt TaskItem do proměnné task a jeho jednotlivé hodnoty rozřadíme do příslušných proměnných.
+
+
+```
+private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
+{
+    if (dataGridTasks.SelectedItem is null)
+    {
+        return;
+    }
+
+    TaskItem task = (TaskItem)dataGridTasks.SelectedItem;
+
+    textBoxTask.Text = task.Title;
+    comboBoxTaskType.SelectedItem = task.Type;
+    checkBoxIsDone.IsChecked = task.IsDone;
+}
+```
+### Update task 
+Začneme metodou private void UpdateTask_Click(object sender, RoutedEventArgs e). Pomocí if statementu ošetříme případ kdy objekt k aktualizaci není TaskItem a zároveň si v něm zkusíme uložit objekt do proměnné task(TaskItem task... jestli objekt je typu TaskItem tak se do této proměnné uloží) . Pokud tento případ nenastane, můžeme si uložit uživatelské vstupy do příslušných proměnných (stejně jako v metodě AddTask_Click). Tyto data zkusíme proměnit v aktualizovaný úkol pomocí metody UpdateTask objektu _taskService.
+```
+if (dataGridTasks.SelectedItem is not TaskItem task)
+{
+    MessageBox.Show("Select task to update.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+    return;
+}
+
+string title = textBoxTask.Text.Trim();
+TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
+bool isDone = checkBoxIsDone.IsChecked == true;
+
+OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
+```
+Roztříděné vstupy zkusíme proměnit v aktualizovaný úkol pomocí metody UpdateTask objektu _taskService a výsledek uložit do proměnné result (nacházíme se v souboru TaskService.cs ve třídě TaskService). Přecházíme tedy do metody UpdateTask třídy TaskService. Ošetříme základní nechtěné případy (podle kódu níže). Jelikož TaskItem objekty jsou indexovány, tak k nim můžeme lehčeji přistupovat a zjišťovat, zda objekty opravdu existují. Pokud hledaní indexu vrátí -1, objekt neexistuje. Až když nenastává žádný z nechtěných případů, tak můžeme aktualizovat úkol s novými hodnotami s stejným indexem jako aktualizovaný úkol a můžeme se vrátit s úspěchem.
+
+```
+ public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)
+ {
+     if (task is null)
+     {
+         return OperationResult.Failure("Task cannot be null.");
+     }
+
+     if (string.IsNullOrEmpty(title))
+     {
+         return OperationResult.Failure("Title cannot be empty.");
+     }
+
+     foreach (TaskItem taskItem in Tasks)
+     {
+         if (task.Title.ToLower() == title.ToLower() && task.Type == type)
+         {
+             return OperationResult.Failure("Task with this title already exists.");
+         }
+     }
+
+     int index = Tasks.IndexOf(task);
+     if (index == -1)
+     {
+         return OperationResult.Failure("Task not found.");
+     }
+
+     Tasks[index] = new TaskItem(task.Id, title, type, isDone);
+     return OperationResult.Success();
+ }
+```
+Vracíme se do souboru MainWindow.xaml.cs a dokončujeme metodu UpdateTask_Click. Postup dokončení je podobný jako u metody AddTask_Click.
+
+```
+if (!result.IsSuccess)
+{
+    MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+}
+textBoxTask.Clear();
 ```
