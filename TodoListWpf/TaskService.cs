@@ -68,7 +68,16 @@ public class TaskService(string path = "tasks.json") : ITaskService
     /// <inheritdoc/>
     public OperationResult DeleteTask(TaskItem task)
     {
-        throw new NotImplementedException();
+        if (task is null)
+        {
+            return OperationResult.Failure("Task cannot be null.");
+        }
+        if (!Tasks.Contains(task))
+        {
+            return OperationResult.Failure("Task not found.");
+        }
+        Tasks.Remove(task);
+        return OperationResult.Success();
     }
 
     /// <inheritdoc/>

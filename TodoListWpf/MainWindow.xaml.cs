@@ -69,6 +69,20 @@ public partial class MainWindow : Window
     /// </summary>
     private void DeleteTask_Click(object sender, RoutedEventArgs e)
     {
+        
+
+        if (dataGridTasks.SelectedItem is not TaskItem task)
+        {
+            MessageBox.Show("Select task to delete.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        OperationResult result = _taskService.DeleteTask(task);
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        
 
     }
 
