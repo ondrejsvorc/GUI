@@ -33,17 +33,27 @@ You can download the entire project from GitHub:
 3. Extract the ZIP file and open the project in Visual Studio.
 
 
-## Features
+## Functional requirements
+- Viewing tasks.
+- Adding tasks.
+- Setting task type (Work, University, Personal, Other).
+- Setting task status (Completed/Not completed).
+- Removing tasks.
+- Editing tasks.
+- Saving tasks to a file (JSON).
+- Loading tasks from a file (JSON).
+- 
+```mermaid
+flowchart TD
+    User[User] --> ViewTasks[View Tasks]
+    User --> AddTask[Add Task]
+    User --> UpdateTask[Update Task]
+    User --> DeleteTask[Delete Task]
+    User --> SaveTasks[Save Tasks]
+    User --> LoadTasks[Load Tasks]
+```
 
-### Adding tasks
-### Setting task type (Work, University, Personal, Other)
-### Setting task status (Completed/Not completed)
-### Removing tasks
-### Editing tasks
-### Saving tasks to a file (JSON)
-### Loading tasks from a file (JSON)
-
-# Creating a DoToList in WPF
+# Creating a TODO List in WPF
 ## Designing the Interface in XAML
 Pay attention to indentation. "<" - marks the start of a tag, "/>"" or "</" - marks the end of a tag.
 
@@ -74,6 +84,8 @@ The Window serves as the main container where we will gradually add and nest oth
     Foreground="#CCCCCC"
     HorizontalAlignment="Center"
     VerticalAlignment="Center">
+    <!--Paste next code here-->
+</Window>
 ```
 
 ### Grid
@@ -88,15 +100,17 @@ Since we want to divide our window into three horizontal sections, we need to de
 1. **First RowDefinition** – `Height="*"` means that the row will take up **1/n** of the window space, where `n` is the total number of rows. In our case, it will occupy **one-third** of the window space.  
 2. **Second and Third Rows** – `Height="Auto"` means that the row height will automatically adjust based on the content.
 ```    
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition 
-                Height="*"/>
-            <RowDefinition 
-                Height="Auto"/>
-            <RowDefinition 
-                Height="Auto"/>
-        </Grid.RowDefinitions>
+<Grid Margin="10">
+    <Grid.RowDefinitions>
+        <RowDefinition 
+            Height="*"/>
+        <RowDefinition 
+            Height="Auto"/>
+        <RowDefinition 
+            Height="Auto"/>
+    </Grid.RowDefinitions>
+    <!--Paste next code here-->
+</Grid>
 ```
 
 ### DataGrid
@@ -113,17 +127,19 @@ The **DataGrid** is a table where we will display the list of tasks.
 - **`SelectionChanged`** – Specifies a method to handle the event when a user selects a row. If no row is selected, the value is `null`. We will implement this method later.  
 
 ```
-        <DataGrid 
-            x:Name="dataGridTasks"
-            Grid.Row="0"
-            AutoGenerateColumns="False"
-            CanUserAddRows="False"
-            IsReadOnly="True"
-            Background="#2D2D30"
-            Foreground="#CCCCCC"
-            BorderBrush="#3E3E42"
-            BorderThickness="1"
-            SelectionChanged="DataGridTasks_SelectionChanged">
+<DataGrid 
+    x:Name="dataGridTasks"
+    Grid.Row="0"
+    AutoGenerateColumns="False"
+    CanUserAddRows="False"
+    IsReadOnly="True"
+    Background="#2D2D30"
+    Foreground="#CCCCCC"
+    BorderBrush="#3E3E42"
+    BorderThickness="1"
+    SelectionChanged="DataGridTasks_SelectionChanged">
+    <!--Paste next code here-->
+</DataGrid>
 ```
 
 **DataGrid.Resources** defines where the **DataGrid** should retrieve style definitions from.  
@@ -137,28 +153,29 @@ Within the **`Style.Triggers`** tags, we can define individual triggers.
 For example, if the **`IsSelected`** property of a **DataGrid** cell is `true` (meaning the cell is selected),  
 then the trigger will automatically change the **border color** to **yellow**.  
 ```
-             <DataGrid.Resources>
-                <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="Background" Value="#3E3E42"/>
-                    <Setter Property="Foreground" Value="#CCCCCC"/>
-                    <Setter Property="BorderBrush" Value="#565656"/>
-                </Style>
-                <Style TargetType="DataGridCell">
-                    <Setter Property="Background" Value="#2D2D30"/>
-                    <Setter Property="Foreground" Value="#CCCCCC"/>
-                    <Setter Property="BorderBrush" Value="#565656"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="BorderBrush" Value="Yellow"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-                <Style TargetType="DataGridRow">
-                    <Setter Property="Background" Value="#2D2D30"/>
-                    <Setter Property="Foreground" Value="#CCCCCC"/>
-                    <Setter Property="BorderBrush" Value="#565656"/>
-                </Style>
-                              </DataGrid.Resources>
+<DataGrid.Resources>
+    <Style TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="#3E3E42"/>
+        <Setter Property="Foreground" Value="#CCCCCC"/>
+        <Setter Property="BorderBrush" Value="#565656"/>
+    </Style>
+    <Style TargetType="DataGridCell">
+        <Setter Property="Background" Value="#2D2D30"/>
+        <Setter Property="Foreground" Value="#CCCCCC"/>
+        <Setter Property="BorderBrush" Value="#565656"/>
+    <Style.Triggers>
+        <Trigger Property="IsSelected" Value="True">
+            <Setter Property="BorderBrush" Value="Yellow"/>
+        </Trigger>
+    </Style.Triggers>
+    </Style>
+    <Style TargetType="DataGridRow">
+        <Setter Property="Background" Value="#2D2D30"/>
+        <Setter Property="Foreground" Value="#CCCCCC"/>
+        <Setter Property="BorderBrush" Value="#565656"/>
+    </Style>
+</DataGrid.Resources>
+<!--Paste next code here-->
 ```
 
 
@@ -177,27 +194,25 @@ Each `TaskItem` has the following attributes:
 The **DataGrid** recognizes the list of `TaskItem` objects using **binding** and automatically organizes them based on the corresponding column headers and attributes.  
 
 ```
-              <DataGrid.Columns>
-                <!-- Sloupec pro název úkolu -->
-                <DataGridTextColumn 
-                    Header="Title" 
-                    Binding="{Binding Title}"
-                    Width="*"/>
+<DataGrid.Columns>
+    <!-- Column for task name -->
+    <DataGridTextColumn 
+        Header="Title" 
+        Binding="{Binding Title}"
+        Width="*"/>
 
-                <!-- Sloupec pro typ úkolu -->
-                <DataGridTextColumn 
-                    Header="Type" 
-                    Binding="{Binding Type}"
-                    Width="150"/>
+    <!-- Column for task type -->
+    <DataGridTextColumn 
+        Header="Type" 
+        Binding="{Binding Type}"
+        Width="150"/>
 
-                <!-- Sloupec pro stav úkolu -->
-                <DataGridCheckBoxColumn 
-                    Header="Done" 
-                    Binding="{Binding IsDone}"
-                    Width="100"/>
-                </DataGrid.Columns>
-        </DataGrid>
-
+    <!-- Column for task state -->
+    <DataGridCheckBoxColumn 
+        Header="Done" 
+        Binding="{Binding IsDone}"
+        Width="100"/>
+</DataGrid.Columns>
 ```
 
 ### StackPanel
@@ -216,51 +231,53 @@ aligning elements either **vertically** (one below another) or **horizontally** 
 - **`CheckBox`** – A checkbox input.  
 
 ```
-        <StackPanel 
-            Grid.Row="1"
-            Orientation="Vertical"
-            Margin="0,10,0,0">
+<!--Paste this code after </DataGrid> -->
+<StackPanel 
+    Grid.Row="1"
+    Orientation="Vertical"
+    Margin="0,10,0,0">
 
-            <!-- Panel se vstupními prvky -->
-            <StackPanel 
-                Orientation="Horizontal"
-                HorizontalAlignment="Center"
-                Margin="0,0,0,5">
+    <!-- Panel with input elements -->
+    <StackPanel 
+        Orientation="Horizontal"
+        HorizontalAlignment="Center"
+        Margin="0,0,0,5">
 
-                <!-- TextBox pro název úkolu -->
-                <TextBox 
-                    x:Name="textBoxTask"
-                    Width="200"
-                    Height="25"
-                    Margin="5"
-                    ToolTip="Enter a new or updated task"
-                    Background="#2D2D30"
-                    Foreground="#CCCCCC"
-                    BorderBrush="#3E3E42"
-                    BorderThickness="1"/>
-
-                <!-- ComboBox pro výběr typu úkolu -->
-                <ComboBox 
-                    x:Name="comboBoxTaskType"
-                    Width="150"
-                    Height="25"
-                    Margin="5"
-                    Background="#CCCCCC"
-                    Foreground="#2D2D30"
-                    BorderBrush="#3E3E42"
-                    BorderThickness="1"
-                    ToolTip="Select task type">
-                </ComboBox>
-
-                <!-- CheckBox pro nastavení stavu úkolu -->
-                <CheckBox 
-                    x:Name="checkBoxIsDone"
-                    Content="Done"
-                    VerticalAlignment="Center"
-                    Margin="5"
-                    Foreground="#CCCCCC"/>
-            </StackPanel>
-
+        <!-- TextBox for task name -->
+        <TextBox 
+            x:Name="textBoxTask"
+            Width="200"
+            Height="25"
+            Margin="5"
+            ToolTip="Enter a new or updated task"
+            Background="#2D2D30"
+            Foreground="#CCCCCC"
+            BorderBrush="#3E3E42"
+            BorderThickness="1"/>
+    
+        <!-- ComboBox for task type selection -->
+        <ComboBox 
+            x:Name="comboBoxTaskType"
+            Width="150"
+            Height="25"
+            Margin="5"
+            Background="#CCCCCC"
+            Foreground="#2D2D30"
+            BorderBrush="#3E3E42"
+            BorderThickness="1"
+            ToolTip="Select task type">
+        </ComboBox>
+    
+        <!-- CheckBox for setting the task status -->
+        <CheckBox 
+            x:Name="checkBoxIsDone"
+            Content="Done"
+            VerticalAlignment="Center"
+            Margin="5"
+            Foreground="#CCCCCC"/>
+    </StackPanel>
+    <!--Paste next code here-->
+</StackPanel>
 ```
 
 **Button** - a button for user interaction.  
@@ -270,87 +287,84 @@ aligning elements either **vertically** (one below another) or **horizontally** 
 - **`Cursor`** – Determines the mouse cursor icon when hovering over the button.  
 
 ```
- <!-- Panel pro tlačítka (přidat/aktualizovat/smazat úkol) -->
-            <StackPanel 
-                Orientation="Horizontal"
-                HorizontalAlignment="Center">
+<!-- Button panel (add/update/delete task) -->
+<StackPanel 
+    Orientation="Horizontal"
+    HorizontalAlignment="Center">
 
-                <Button 
-                    Content="Add New Task"
-                    Click="AddTask_Click"
-                    Height="50"
-                    Width="150"
-                    Margin="10,0"
-                    FontSize="16"
-                    FontWeight="SemiBold"
-                    Background="#3E3E42"
-                    Foreground="#CCCCCC"
-                    BorderBrush="#565656"
-                    Cursor="Hand"/>
+    <Button 
+        Content="Add New Task"
+        Click="AddTask_Click"
+        Height="50"
+        Width="150"
+        Margin="10,0"
+        FontSize="16"
+        FontWeight="SemiBold"
+        Background="#3E3E42"
+        Foreground="#CCCCCC"
+        BorderBrush="#565656"
+        Cursor="Hand" />
 
-                <Button 
-                    Content="Update Task"
-                    Click="UpdateTask_Click"
-                    Height="50"
-                    Width="150"
-                    Margin="10,0"
-                    FontSize="16"
-                    FontWeight="SemiBold"
-                    Background="#3E3E42"
-                    Foreground="#CCCCCC"
-                    BorderBrush="#565656"
-                    Cursor="Hand"/>
+    <Button 
+        Content="Update Task"
+        Click="UpdateTask_Click"
+        Height="50"
+        Width="150"
+        Margin="10,0"
+        FontSize="16"
+        FontWeight="SemiBold"
+        Background="#3E3E42"
+        Foreground="#CCCCCC"
+        BorderBrush="#565656"
+        Cursor="Hand" />
 
-                <Button 
-                    Content="Delete Task"
-                    Click="DeleteTask_Click"
-                    Height="50"
-                    Width="150"
-                    Margin="10,0"
-                    FontSize="16"
-                    FontWeight="SemiBold"
-                    Background="#3E3E42"
-                    Foreground="#CCCCCC"
-                    BorderBrush="#565656"
-                    Cursor="Hand"/>
-            </StackPanel>
-        </StackPanel>
+    <Button 
+        Content="Delete Task"
+        Click="DeleteTask_Click"
+        Height="50"
+        Width="150"
+        Margin="10,0"
+        FontSize="16"
+        FontWeight="SemiBold"
+        Background="#3E3E42"
+        Foreground="#CCCCCC"
+        BorderBrush="#565656"
+        Cursor="Hand" />
+</StackPanel>
 
-        <!-- Panel pro operace se soubory -->
-        <StackPanel 
-            Grid.Row="2"
-            Orientation="Horizontal"
-            HorizontalAlignment="Center"
-            Margin="0,10,0,0">
+<!-- Panel for file operations -->
+<StackPanel 
+    Grid.Row="2"
+    Orientation="Horizontal"
+    HorizontalAlignment="Center"
+    Margin="0,10,0,0">
 
-            <Button 
-                Content="Save to File"
-                Click="SaveTasks_Click"
-                Height="50"
-                Width="150"
-                Margin="10,0"
-                FontSize="16"
-                FontWeight="SemiBold"
-                Background="#3E3E42"
-                Foreground="#CCCCCC"
-                BorderBrush="#565656"
-                Cursor="Hand"/>
+    <Button 
+        Content="Save to File"
+        Click="SaveTasks_Click"
+        Height="50"
+        Width="150"
+        Margin="10,0"
+        FontSize="16"
+        FontWeight="SemiBold"
+        Background="#3E3E42"
+        Foreground="#CCCCCC"
+        BorderBrush="#565656"
+        Cursor="Hand" />
 
-            <Button 
-                Content="Load from File"
-                Click="LoadTasks_Click"
-                Height="50"
-                Width="150"
-                Margin="10,0"
-                FontSize="16"
-                FontWeight="SemiBold"
-                Background="#3E3E42"
-                Foreground="#CCCCCC"
-                BorderBrush="#565656"
-                Cursor="Hand"/>
-        </StackPanel>
-    </Grid>
-</Window>
+    <Button 
+        Content="Load from File"
+        Click="LoadTasks_Click"
+        Height="50"
+        Width="150"
+        Margin="10,0"
+        FontSize="16"
+        FontWeight="SemiBold"
+        Background="#3E3E42"
+        Foreground="#CCCCCC"
+        BorderBrush="#565656"
+        Cursor="Hand" />
+</StackPanel>
 ```
 
 ## **Creating Program Logic**  
@@ -409,16 +423,16 @@ More details: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference
 namespace TodoListWpf;
 
 /// <summary>
-/// Reprezentuje úkol.
+/// Represents a task.
 /// </summary>
-/// <param name="Id">Identifikátor úkolu.</param>
-/// <param name="Title">Název úkolu.</param>
-/// <param name="Type">Typ úkolu.</param>
-/// <param name="IsDone">Stav úkolu.</param>
+/// <param name="Id">Task identifier.</param>
+/// <param name="Title">Task title.</param>
+/// <param name="Type">Task type.</param>
+/// <param name="IsDone">Task status.</param>
 public record TaskItem(Guid Id, string Title, TaskType Type = TaskType.Other, bool IsDone = false);
 
 /// <summary>
-/// Reprezentuje typ úkolu.
+/// Represents the task type.
 /// </summary>
 public enum TaskType { Work = 0, University = 1, Personal = 2, Other = 3 }
 ```
@@ -446,32 +460,32 @@ namespace TodoListWpf;
 public interface ITaskService
 {
     /// <summary>
-    /// Kolekce úkolů.
+    /// Represents collection of tasks.
     /// </summary>
     public ObservableCollection<TaskItem> Tasks { get; }
 
     /// <summary>
-    /// Přidá nový úkol.
+    /// Adds a new task.
     /// </summary>
     public OperationResult AddTask(string title, TaskType type, bool isDone);
 
     /// <summary>
-    /// Aktualizuje zadaný úkol.
+    /// Updates the specified task.
     /// </summary>
     public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone);
 
     /// <summary>
-    /// Odstraní zadaný úkol.
+    /// Deletes the specified task.
     /// </summary>
     public OperationResult DeleteTask(TaskItem task);
 
     /// <summary>
-    /// Uloží úkoly do souboru.
+    /// Saves tasks to a file.
     /// </summary>
     public OperationResult SaveTasks();
 
     /// <summary>
-    /// Načte úkoly ze souboru.
+    /// Loads tasks from a file.
     /// </summary>
     public OperationResult LoadTasks();
 }
@@ -489,22 +503,22 @@ The methods are called based on **`if` statements** in the code,
 and the content of **`ErrorMessage`** is also defined for specific cases based on conditions within **`if` statements**.  
 ```
 /// <summary>
-/// Reprezentuje výsledek operace, např. při přidávání, aktualizaci či mazání úkolu.
-/// Obsahuje informaci o tom, zda operace proběhla úspěšně, a případnou chybovou zprávu, pokud došlo k selhání.
+/// Represents the result of an operation, e.g. when adding, updating, or deleting a task.
+/// Contains information about whether the operation was successful, and an optional error message if the operation failed.
 /// </summary>
-/// <param name="IsSuccess">Indikuje, zda operace byla úspěšná.</param>
-/// <param name="ErrorMessage">Chybová zpráva, pokud operace selhala; jinak null.</param>
+/// <param name="IsSuccess">Indicates whether the operation was successful.</param>
+/// <param name="ErrorMessage">Error message if the operation failed; otherwise, null.</param>
 public record OperationResult(bool IsSuccess, string? ErrorMessage)
 {
     /// <summary>
-    /// Vytvoří a vrátí úspěšný výsledek operace.
+    /// Creates and returns a successful operation result.
     /// </summary>
     public static OperationResult Success() => new(true, null);
 
     /// <summary>
-    /// Vytvoří a vrátí neúspěšný výsledek operace s uvedenou chybovou zprávou.
+    /// Creates and returns a failed operation result with the specified error message.
     /// </summary>
-    /// <param name="errorMessage">Text chybové zprávy popisující důvod neúspěchu operace.</param>
+    /// <param name="errorMessage">Error message describing the reason for the operation's failure.</param>
     public static OperationResult Failure(string errorMessage) => new(false, errorMessage);
 }
 ```
@@ -523,7 +537,7 @@ The **`TaskService`** class will internally **maintain a collection of tasks**,
 allowing direct manipulation of tasks within the application.  
 ```
 /// <summary>
-/// Služba pro správu úkolů.
+/// Service for managing tasks.
 /// </summary>
 public class TaskService(string path = "tasks.json") : ITaskService
 {
@@ -589,7 +603,7 @@ using System.Windows.Controls;
 namespace TodoListWpf;
 
 /// <summary>
-/// Interakční logika pro MainWindow.xaml.
+/// Interaction logic for MainWindow.xaml.
 /// </summary>
 public partial class MainWindow : Window
 {
@@ -599,16 +613,16 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        // Nastavení datových zdrojů.
+        // Setting data sources.
         dataGridTasks.ItemsSource = _taskService.Tasks;
         comboBoxTaskType.ItemsSource = Enum.GetValues(typeof(TaskType));
 
-        // Nastavení výchozí hodnoty pro ComboBox.
+        // Setting the default value for ComboBox.
         comboBoxTaskType.SelectedItem = TaskType.Other;
     }
 
     /// <summary>
-    /// Přidá nový úkol, pokud má vyplněný název.
+    /// Adds a new task if a title is provided.
     /// </summary>
     private void AddTask_Click(object sender, RoutedEventArgs e)
     {
@@ -616,7 +630,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Aktualizuje vybraný úkol s novým textem z textového pole.
+    /// Updates the selected task with new text from the text field.
     /// </summary>
     private void UpdateTask_Click(object sender, RoutedEventArgs e)
     {
@@ -624,7 +638,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Odstraní vybraný úkol.
+    /// Deletes the selected task.
     /// </summary>
     private void DeleteTask_Click(object sender, RoutedEventArgs e)
     {
@@ -632,7 +646,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Zobrazí vybraný úkol ve vstupních prvcích při změně výběru v DataGridu.
+    /// Displays the selected task in the input fields when the selection in the DataGrid changes.
     /// </summary>
     private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -640,7 +654,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Uloží úkoly do souboru.
+    /// Saves tasks to a file.
     /// </summary>
     private void SaveTasks_Click(object sender, RoutedEventArgs e)
     {
@@ -648,7 +662,7 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Načte úkoly ze souboru.
+    /// Loads tasks from a file.
     /// </summary>
     private void LoadTasks_Click(object sender, RoutedEventArgs e)
     {
