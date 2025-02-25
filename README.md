@@ -618,3 +618,40 @@ if (!result.IsSuccess)
 }
 textBoxTask.Clear();
 ```
+### Delete Task
+Funkce je poměrně lehká. V metodě private void DeleteTask_Click(object sender, RoutedEventArgs e) v .xaml.cs souboru opět ošetříme nechtěný případ a úkol uložíme do proměnné task.
+```
+ if (dataGridTasks.SelectedItem is not TaskItem task)
+ {
+     MessageBox.Show("Select task to delete.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+     return;
+ }
+
+ OperationResult result = _taskService.DeleteTask(task);
+```
+Tuto proměnnou poté svěřujeme třídní metodě objektu _taskService. Ta opět pořeší podmínky při kterých by mohl nastat problém, jinak úkol úspěšně odstraní z kolekce. Ať už proběhl úspěch nebo neúspěch, výsledek tak či tak odesílá metodě v xaml.cs souboru.
+
+```
+public OperationResult DeleteTask(TaskItem task)
+{
+    if (task is null)
+    {
+        return OperationResult.Failure("Task cannot be null.");
+    }
+    if (!Tasks.Contains(task))
+    {
+        return OperationResult.Failure("Task not found.");
+    }
+    Tasks.Remove(task);
+    return OperationResult.Success();
+}
+```
+Zde může uživatel zjistit zda nastal problém, v opačném případě uvidí,že úkol díky bindingu zmizí z datagridu a textové pole se vyčistí.
+
+```
+if (!result.IsSuccess)
+{
+    MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+}
+textBoxTask.Clear();
+```
