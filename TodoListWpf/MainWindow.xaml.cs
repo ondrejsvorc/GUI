@@ -93,7 +93,11 @@ public partial class MainWindow : Window
     /// </summary>
     private void SaveTasks_Click(object sender, RoutedEventArgs e)
     {
-
+        OperationResult result =_taskService.SaveTasks();
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     /// <summary>
@@ -101,6 +105,10 @@ public partial class MainWindow : Window
     /// </summary>
     private void LoadTasks_Click(object sender, RoutedEventArgs e)
     {
-
+        OperationResult result = _taskService.LoadTasks();
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 }
