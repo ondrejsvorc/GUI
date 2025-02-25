@@ -353,3 +353,306 @@ aligning elements either **vertically** (one below another) or **horizontally** 
 </Window>
 ```
 
+## **Creating Program Logic**  
+
+#### **Creating the `TaskItem` Record and enum `TaskType`**  
+
+In our solution  we will create a new file named `TaskItem`.  
+
+To do this:  
+1. Right-click anywhere in the **Solution Explorer** panel (folder view).  
+   - **Do not** click on the `obj` or `bin` folders.  
+   - A good alternative is right-clicking on `ToDoListWpf.csproj`.  
+2. Select **Add -> New File**.  
+3. Rename the new file to **`TaskItem.cs`**.  
+
+![Visual Studio Setup](images/vytvorTyp0.png)
+
+
+Now we can implement the behavior of these two types. We will not define them as **classes** unnecessarily,  
+because given their role in the program logic, it is not needed and might even be counterproductive.  
+
+We need to define **which namespace** we are working in:  
+```
+namespace ToDoListWpf;
+```
+
+Then, we create a **record** type called `TaskItem` with the following properties:  
+
+- **`Id`** (`Guid`) – A globally unique identifier.  
+- **`Title`** (`string`) – Represents the task description in the To-Do List.  
+- **`Type`** (`TaskType`) – Specifies what category the task belongs to (we will define the `TaskType` enum below).  
+- **`IsDone`** (`bool`) – A flag that by default indicates that the task is **not yet completed**.  
+
+**What is a Record?**  
+
+In C#, a **record** can be considered a class, but it is primarily a **structured type**  
+designed for storing **immutable data**.  
+
+More details: https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/records
+
+
+**Defining the `TaskType` Enum**  
+
+Next, we create an **enum** called `TaskType`, which contains named values assigned to whole numbers.  
+
+**What is an Enum?**  
+
+An **enum** is a **value type** used to represent a selection from a set of **mutually exclusive values**  
+or a **combination of choices**.  
+
+By default, **enum values** are assigned **integer values starting from `0`**,  
+but this behavior can be customized if needed.  
+
+More details: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/enum
+```
+namespace TodoListWpf;
+
+/// <summary>
+/// Reprezentuje úkol.
+/// </summary>
+/// <param name="Id">Identifikátor úkolu.</param>
+/// <param name="Title">Název úkolu.</param>
+/// <param name="Type">Typ úkolu.</param>
+/// <param name="IsDone">Stav úkolu.</param>
+public record TaskItem(Guid Id, string Title, TaskType Type = TaskType.Other, bool IsDone = false);
+
+/// <summary>
+/// Reprezentuje typ úkolu.
+/// </summary>
+public enum TaskType { Work = 0, University = 1, Personal = 2, Other = 3 }
+```
+
+Now we create a new file named **TaskService.cs**
+
+This file will contain the following components:  
+
+- **`ITaskService`** – An interface defining necessary methods.  
+- **`TaskService : ITaskService`** – A class implementing the interface.  
+- **`OperationResult`** – A record used for operation validation.  
+
+Although **`ITaskService`** is not strictly necessary, it helps clarify the logic  
+and define the required methods for the application to function correctly.  
+
+The methods within **`ITaskService`** will return values of type **`OperationResult`**,  
+which allows us to verify whether operations have been executed successfully or not.  
+
+We will define **`OperationResult`** later.  
+```
+using System.Collections.ObjectModel;
+
+namespace TodoListWpf;
+
+public interface ITaskService
+{
+    /// <summary>
+    /// Kolekce úkolů.
+    /// </summary>
+    public ObservableCollection<TaskItem> Tasks { get; }
+
+    /// <summary>
+    /// Přidá nový úkol.
+    /// </summary>
+    public OperationResult AddTask(string title, TaskType type, bool isDone);
+
+    /// <summary>
+    /// Aktualizuje zadaný úkol.
+    /// </summary>
+    public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone);
+
+    /// <summary>
+    /// Odstraní zadaný úkol.
+    /// </summary>
+    public OperationResult DeleteTask(TaskItem task);
+
+    /// <summary>
+    /// Uloží úkoly do souboru.
+    /// </summary>
+    public OperationResult SaveTasks();
+
+    /// <summary>
+    /// Načte úkoly ze souboru.
+    /// </summary>
+    public OperationResult LoadTasks();
+}
+```
+
+Before implementing **`ITaskService`**, we will create a **record type** called `OperationResult`.  
+
+This type provides two methods:  
+
+- **`Success`** – Returns a **boolean value (`true`)** indicating a successful operation.  
+- **`Failure`** – Returns a **boolean value (`false`)** along with an **`ErrorMessage`**,  
+  which can be either `null` or a `string`.  
+
+The methods are called based on **`if` statements** in the code,  
+and the content of **`ErrorMessage`** is also defined for specific cases based on conditions within **`if` statements**.  
+```
+/// <summary>
+/// Reprezentuje výsledek operace, např. při přidávání, aktualizaci či mazání úkolu.
+/// Obsahuje informaci o tom, zda operace proběhla úspěšně, a případnou chybovou zprávu, pokud došlo k selhání.
+/// </summary>
+/// <param name="IsSuccess">Indikuje, zda operace byla úspěšná.</param>
+/// <param name="ErrorMessage">Chybová zpráva, pokud operace selhala; jinak null.</param>
+public record OperationResult(bool IsSuccess, string? ErrorMessage)
+{
+    /// <summary>
+    /// Vytvoří a vrátí úspěšný výsledek operace.
+    /// </summary>
+    public static OperationResult Success() => new(true, null);
+
+    /// <summary>
+    /// Vytvoří a vrátí neúspěšný výsledek operace s uvedenou chybovou zprávou.
+    /// </summary>
+    /// <param name="errorMessage">Text chybové zprávy popisující důvod neúspěchu operace.</param>
+    public static OperationResult Failure(string errorMessage) => new(false, errorMessage);
+}
+```
+
+
+We will predefine the implementation of **`ITaskService`** in the form of a class **`TaskService`**.  
+
+Since our application will be able to **save and load tasks** to/from a file,  
+we need to:  
+
+- **Create the file**  
+- **Name it**  
+- **Define its path**  
+
+The **`TaskService`** class will internally **maintain a collection of tasks**,  
+allowing direct manipulation of tasks within the application.  
+```
+/// <summary>
+/// Služba pro správu úkolů.
+/// </summary>
+public class TaskService(string path = "tasks.json") : ITaskService
+{
+    /// <inheritdoc/>
+    public ObservableCollection<TaskItem> Tasks { get; } = [];
+
+    /// <inheritdoc/>
+    public OperationResult AddTask(string title, TaskType type, bool isDone)
+    {
+       throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public OperationResult DeleteTask(TaskItem task)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public OperationResult SaveTasks()
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public OperationResult LoadTasks()
+    {
+        throw new NotImplementedException();
+    }
+}
+```
+
+We open the **`MainWindow.xaml.cs`** file to initialize the user interface  
+defined in **`MainWindow.xaml`**.  
+
+This file will also contain **event handlers** (see presentation).  
+These event handlers will be linked to methods in the **`TaskService`** class.  
+
+When creating the **`MainWindow`** class, we need to define a **private object** `_taskService`  
+as an instance of the **`TaskService`** class. 
+
+This object is necessary for managing tasks in both the **foreground** and **background** of the application. However, it **should not be accessible** to classes outside `MainWindow`.
+
+Then we must set the data sources for:  
+
+- **The `DataGrid`** – Using the **task collection** maintained by `_taskService`.  
+- **The `ComboBox`** – Using the **`TaskTypes`** enum defined earlier.
+
+The last step in **window initialization** is setting the **default value** of the **ComboBox** to **`Other`** (`TaskType.Other`).
+In addition to the functions defined in `_taskService` and linked to the UI in the **XAML file**, we also need to implement the **`DataGridTasks_SelectionChanged()`** function.  
+- This function was set as an **event handler** in XAML.  
+- It will be triggered when the user **clicks on a row** in the **DataGrid**.
+```
+using System.Windows;
+using System.Windows.Controls;
+
+namespace TodoListWpf;
+
+/// <summary>
+/// Interakční logika pro MainWindow.xaml.
+/// </summary>
+public partial class MainWindow : Window
+{
+    private readonly ITaskService _taskService = new TaskService();
+
+    public MainWindow()
+    {
+        InitializeComponent();
+
+        // Nastavení datových zdrojů.
+        dataGridTasks.ItemsSource = _taskService.Tasks;
+        comboBoxTaskType.ItemsSource = Enum.GetValues(typeof(TaskType));
+
+        // Nastavení výchozí hodnoty pro ComboBox.
+        comboBoxTaskType.SelectedItem = TaskType.Other;
+    }
+
+    /// <summary>
+    /// Přidá nový úkol, pokud má vyplněný název.
+    /// </summary>
+    private void AddTask_Click(object sender, RoutedEventArgs e)
+    {
+        
+    }
+
+    /// <summary>
+    /// Aktualizuje vybraný úkol s novým textem z textového pole.
+    /// </summary>
+    private void UpdateTask_Click(object sender, RoutedEventArgs e)
+    {
+        
+    }
+
+    /// <summary>
+    /// Odstraní vybraný úkol.
+    /// </summary>
+    private void DeleteTask_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    /// <summary>
+    /// Zobrazí vybraný úkol ve vstupních prvcích při změně výběru v DataGridu.
+    /// </summary>
+    private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        
+    }
+
+    /// <summary>
+    /// Uloží úkoly do souboru.
+    /// </summary>
+    private void SaveTasks_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    /// <summary>
+    /// Načte úkoly ze souboru.
+    /// </summary>
+    private void LoadTasks_Click(object sender, RoutedEventArgs e)
+    {
+
+    }
+}
+```
