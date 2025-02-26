@@ -341,7 +341,8 @@ Potřebujeme nadefinovat ve kterém jmenném prostoru se pohybujeme
 ```
 namespace ToDoListWpf;
 ```
-Vytvoříme typ `record TaskItem` s potřebnými vlastnostmi:
+### Definování `record TaskItem`:
+Vytvoříme typ `public record TaskItem` s potřebnými vlastnostmi
 - `Id(Guid)` - identifikator/Global unique identifier
 - `Title(string)` - co je úkolem v ToDo Listu
 - `Type(TaskType)` - představuje čeho se náš úkol týká (typ `enum TaskType` naprogramujeme níže)
@@ -349,8 +350,8 @@ Vytvoříme typ `record TaskItem` s potřebnými vlastnostmi:
 ### Co je to record?
 **Record** může být v C# považován za třídu, ale jde spíše o **strukturovaný typ** určený primárně pro ukládání neměnných dat
       - pro více detailů: https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/records
-### Definování `enum TaskType`
-Poté si vytvoříme potřebný **typ** ``enum TaskType``, který má přirazené pojmenované položky k celým číslům.
+### Definování typu `enum TaskType`:
+Poté si vytvoříme potřebný **typ** `public enum TaskType`, který má přirazené pojmenované položky k celým číslům.
 ### Co je to enum?
 **Enum** je hodnotový **výčtový typ**. Tento výčtový typ používáme k reprezentaci **volby z množiny vzájemně se vylučujících hodnot nebo jako kombinaci voleb**. Hodnoty jsou defaultně přirazovány k intigerům začínaje `0`, avšak toto nastavení jde změnit. 
     - pro více detailů: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/enum
