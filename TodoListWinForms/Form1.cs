@@ -12,10 +12,8 @@ public partial class Form1 : Form
 
         // Nastavení datových zdrojù.
         dataGridTasks.DataSource = new BindingList<TaskItem>(_taskService.Tasks);
-        comboBoxTaskType.DataSource = Enum.GetValues(typeof(TaskType));
-
-        // Vypnutí generování jiných než explicitnì definovaných sloupcù.
         dataGridTasks.AutoGenerateColumns = false;
+        comboBoxTaskType.DataSource = Enum.GetValues(typeof(TaskType));
 
         // Nastavení výchozí hodnoty pro ComboBox.
         comboBoxTaskType.SelectedItem = TaskType.Other;
@@ -26,7 +24,19 @@ public partial class Form1 : Form
     /// </summary>
     private void AddTask_Click(object sender, EventArgs e)
     {
+        string title = textBoxTask.Text.Trim();
+        TaskType type = (TaskType)comboBoxTaskType.SelectedItem!;
+        bool isDone = checkBoxIsDone.Checked;
+
+        OperationResult result = _taskService.AddTask(title, type, isDone);
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
         RefreshDataGrid();
+        textBoxTask.Clear();
     }
 
     /// <summary>
@@ -34,7 +44,25 @@ public partial class Form1 : Form
     /// </summary>
     private void UpdateTask_Click(object sender, EventArgs e)
     {
+        if (dataGridTasks.CurrentRow?.DataBoundItem is not TaskItem task)
+        {
+            MessageBox.Show("Select a task to update.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        string title = textBoxTask.Text.Trim();
+        TaskType type = (TaskType)comboBoxTaskType.SelectedItem!;
+        bool isDone = checkBoxIsDone.Checked;
+
+        OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
         RefreshDataGrid();
+        textBoxTask.Clear();
     }
 
     /// <summary>
@@ -42,7 +70,21 @@ public partial class Form1 : Form
     /// </summary>
     private void DeleteTask_Click(object sender, EventArgs e)
     {
+        if (dataGridTasks.CurrentRow?.DataBoundItem is not TaskItem task)
+        {
+            MessageBox.Show("Select a task to delete.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        OperationResult result = _taskService.DeleteTask(task);
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
         RefreshDataGrid();
+        textBoxTask.Clear();
     }
 
     /// <summary>
@@ -50,7 +92,19 @@ public partial class Form1 : Form
     /// </summary>
     private void DataGridTasks_SelectionChanged(object sender, EventArgs e)
     {
+        if (dataGridTasks.CurrentRow?.Index >= _taskService.Tasks.Count)
+        {
+            return;
+        }
 
+        if (dataGridTasks.CurrentRow?.DataBoundItem is not TaskItem selectedTask)
+        {
+            return;
+        }
+
+        textBoxTask.Text = selectedTask.Title;
+        comboBoxTaskType.SelectedItem = selectedTask.Type;
+        checkBoxIsDone.Checked = selectedTask.IsDone;
     }
 
     /// <summary>
@@ -58,7 +112,12 @@ public partial class Form1 : Form
     /// </summary>
     private void SaveTasks_Click(object sender, EventArgs e)
     {
-
+        OperationResult result = _taskService.SaveTasks();
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
     }
 
     /// <summary>
@@ -66,14 +125,15 @@ public partial class Form1 : Form
     /// </summary>
     private void LoadTasks_Click(object sender, EventArgs e)
     {
+        OperationResult result = _taskService.LoadTasks();
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
         RefreshDataGrid();
     }
 
-    /// <summary>
-    /// Vynutí pøekreslení DataGridu.
-    /// Narozdíl od WPF, kde ObservableCollection automaticky informuje o zmìnì, zde není podporována (resp. musel by se implementovat interface INotifyPropertyChanged).
-    /// Øešením je tedy znovupøiøazení aktualizovaného seznamu do DataSource, èímž dáme signál o zmìnì datového zdroje, a dojde tak k vykreslení.
-    /// </summary>
     private void RefreshDataGrid()
     {
         dataGridTasks.DataSource = new BindingList<TaskItem>(_taskService.Tasks);

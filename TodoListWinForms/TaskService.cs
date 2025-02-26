@@ -1,10 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text.Json;
 
 namespace TodoListWinForms;
 
-/// <summary>
-/// Služba pro správu úkolů.
-/// </summary>
+/// <inheritdoc/>
 public class TaskService(string path = "tasks.json") : ITaskService
 {
     /// <inheritdoc/>
@@ -13,31 +12,111 @@ public class TaskService(string path = "tasks.json") : ITaskService
     /// <inheritdoc/>
     public OperationResult AddTask(string title, TaskType type, bool isDone)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(title))
+        {
+            return OperationResult.Failure("Title cannot be empty.");
+        }
+
+        foreach (TaskItem task in Tasks)
+        {
+            if (task.Title.ToLower() == title.ToLower() && task.Type == type)
+            {
+                return OperationResult.Failure("Task with this title already exists.");
+            }
+        }
+
+        TaskItem taskItem = new TaskItem(Guid.NewGuid(), title, type, isDone);
+        Tasks.Add(taskItem);
+        return OperationResult.Success();
     }
 
     /// <inheritdoc/>
     public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)
     {
-        throw new NotImplementedException();
+        if (task is null)
+        {
+            return OperationResult.Failure("Task cannot be null.");
+        }
+
+        if (string.IsNullOrEmpty(title))
+        {
+            return OperationResult.Failure("Title cannot be empty.");
+        }
+
+        foreach (TaskItem taskItem in Tasks)
+        {
+            if (task.Title.ToLower() == title.ToLower() && task.Type == type)
+            {
+                return OperationResult.Failure("Task with this title already exists.");
+            }
+        }
+
+        int index = Tasks.IndexOf(task);
+        if (index == -1)
+        {
+            return OperationResult.Failure("Task not found.");
+        }
+
+        Tasks[index] = new TaskItem(task.Id, title, type, isDone);
+        return OperationResult.Success();
     }
 
     /// <inheritdoc/>
     public OperationResult DeleteTask(TaskItem task)
     {
-        throw new NotImplementedException();
+        if (task is null)
+        {
+            return OperationResult.Failure("Task cannot be null.");
+        }
+
+        if (!Tasks.Contains(task))
+        {
+            return OperationResult.Failure("Task not found.");
+        }
+
+        Tasks.Remove(task);
+        return OperationResult.Success();
     }
 
     /// <inheritdoc/>
     public OperationResult SaveTasks()
     {
-        throw new NotImplementedException();
+        try
+        {
+            string json = JsonSerializer.Serialize(Tasks, new JsonSerializerOptions() { WriteIndented = true });
+            File.WriteAllText(path, json);
+        }
+        catch
+        {
+            return OperationResult.Failure("Tasks could not be saved to file.");
+        }
+
+        return OperationResult.Success();
     }
 
     /// <inheritdoc/>
     public OperationResult LoadTasks()
     {
-        throw new NotImplementedException();
+        if (!File.Exists(path))
+        {
+            File.WriteAllText(path, "[]");
+        }
+
+        string json = File.ReadAllText(path);
+
+        ObservableCollection<TaskItem>? tasks = JsonSerializer.Deserialize<ObservableCollection<TaskItem>>(json);
+        if (tasks is null)
+        {
+            return OperationResult.Failure("Tasks could not be loaded from file.");
+        }
+
+        Tasks.Clear();
+        foreach (TaskItem task in tasks)
+        {
+            Tasks.Add(task);
+        }
+
+        return OperationResult.Success();
     }
 }
 
