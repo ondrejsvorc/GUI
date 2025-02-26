@@ -369,6 +369,83 @@ aligning elements either **vertically** (one below another) or **horizontally** 
 
 ## **Creating Program Logic**  
 
+### Architecture
+```mermaid
+classDiagram
+    class TaskItem {
+      +Id : Guid
+      +Title : string
+      +Type : TaskType
+      +IsDone : bool
+    }
+
+    TaskItem *-- TaskType
+
+    class TaskType {
+      <<enumeration>>
+      Work = 0
+      University = 1
+      Personal = 2
+      Other = 3
+    }
+    
+    class OperationResult {
+      +IsSuccess : bool
+      +ErrorMessage : string
+      +Success() : OperationResult
+      +Failure(errorMessage: string) : OperationResult
+    }
+    
+    class ITaskService {
+      <<interface>>
+      +Tasks : ObservableCollection~TaskItem~
+      +AddTask(title: string, type: TaskType, isDone: bool) : OperationResult
+      +UpdateTask(task: TaskItem, title: string, type: TaskType, isDone: bool) : OperationResult
+      +DeleteTask(task: TaskItem) : OperationResult
+      +SaveTasks() : OperationResult
+      +LoadTasks() : OperationResult
+    }
+    
+    ITaskService ..> OperationResult : returns
+
+    class TaskService {
+      +Tasks : ObservableCollection~TaskItem~
+      +TaskService(path: string = "tasks.json")
+      +AddTask(title: string, type: TaskType, isDone: bool) : OperationResult
+      +UpdateTask(task: TaskItem, title: string, type: TaskType, isDone: bool) : OperationResult
+      +DeleteTask(task: TaskItem) : OperationResult
+      +SaveTasks() : OperationResult
+      +LoadTasks() : OperationResult
+    }
+    
+    ITaskService <|.. TaskService : implements
+    
+    class MainWindow {
+      -_taskService : ITaskService
+      +MainWindow()
+      +AddTask_Click(sender, e)
+      +UpdateTask_Click(sender, e)
+      +DeleteTask_Click(sender, e)
+      +DataGridTasks_SelectionChanged(sender, e)
+      +SaveTasks_Click(sender, e)
+      +LoadTasks_Click(sender, e)
+    }
+    
+    MainWindow --> ITaskService : uses
+```
+
+### Event-Driven workflow
+```mermaid
+sequenceDiagram
+    participant XAML as MainWindow.xaml
+    participant MW as MainWindow.xaml.cs
+    participant TS as TaskService
+    XAML->>MW: User clicks button (e.g., AddTask_Click)
+    MW->>TS: Invoke AddTask(...)
+    TS->>MW: Return OperationResult
+    MW->>XAML: Update UI based on OperationResult
+```
+
 #### **Creating the `TaskItem` Record and enum `TaskType`**  
 
 In our solution  we will create a new file named `TaskItem`.  
