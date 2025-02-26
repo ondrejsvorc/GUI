@@ -1,5 +1,7 @@
 # WPF + WinForms TODO List
 
+![Visual Studio Setup](images/WPF-Final-Application.png)
+
 Tento projekt představuje TODO List, vyvinutý pomocí WPF a WinForms.
 Budeme demonstrovat proces tvorby této aplikace krok za krokem.
 
@@ -48,13 +50,13 @@ Dbejte na odsazení. "<" - začátek tagu, "/>" anebo "</"- ukončení tagu
 ### Window
 Tvoří základní prostor, na který budeme postupně přídavat naše další prvky (vnořovat). Jde o základ, bez kterého by se desktopová aplikace nezobrazila.
 - **`x:Class`** zde se nachazi  odkaz na třídu, se kterou je XAML soubor spojený, v našem případe jde o třídu MainWindow ve jmenném prostoru TodoListWpf.
-- **`xmlns, xmlns: x*`*– informace o XAML schéma. URL odkazy poskytují zdroj definic tagů. Bez nich náš program XAML tagy nerozezná. URL odkazy se mohou měnit v případě užití jiných knihoven.
+- **`xmlns, xmlns: x`**– informace o XAML schéma. URL odkazy poskytují zdroj definic tagů. Bez nich náš program XAML tagy nerozezná. URL odkazy se mohou měnit v případě užití jiných knihoven.
 - **`Title`** – nadpis aplikace. "Height, Width" – šířka a výška okna. "Background" - Barva základního okna v hexadecimálním zápisu.
 - **`FontFamily`** - font písma na základním okně a všech jeho prvcích.
 - **`FontSize`** - velikost písma/fontu.
 - **`Foreground`** - barva textu písma v hexadecimáním zápisu. "HorizontalAlignment" - zarovnání okna aplikace na uživatelské obrazovce.
 ```
-<Window 
+<Window
     x:Class="TodoListWpf.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -77,15 +79,15 @@ Grid je neviditelná mřížka, která zabírá celý prostor okna a pomáhá na
 - **`Grid.RowDefinitions`** - párový tag, slouží k přímému pozicování prvků.
 Jelikož naše okno chceme rozdělit na tři horizontální části, tak potřebujeme nadefinovat tři řádky, ve kterých budou naše prvky. Toho dosáhneme pomocí **`RowDefinition`**
       - **1.`RowDefinition`** - `Height="*"`, znamená, že chceme aby výška řádku zabírala 1/n prostoru okna, kde n = počet řádku, v našem případě jedna třetina prostoru.
-      - **2. a 3.`RowDefinition`** - `Height = "Auto" `- výška řádku se automaticky přizpůsobí podle obsahu. 
-```    
+      - **2. a 3.`RowDefinition`** - `Height = "Auto" `- výška řádku se automaticky přizpůsobí podle obsahu.
+```
 <Grid Margin="10">
     <Grid.RowDefinitions>
-        <RowDefinition 
+        <RowDefinition
             Height="*"/>
-        <RowDefinition 
+        <RowDefinition
             Height="Auto"/>
-        <RowDefinition 
+        <RowDefinition
             Height="Auto"/>
     </Grid.RowDefinitions>
     <!--Zde vložte další kód-->
@@ -93,7 +95,7 @@ Jelikož naše okno chceme rozdělit na tři horizontální části, tak potřeb
 ```
 
 ### DataGrid
-Tabulka ve které vypíšeme seznam úkolů. 
+Tabulka ve které vypíšeme seznam úkolů.
 - **`x:Name`** - Vlastnost elementu, název konkrétního prvku. Tím, že tag pojmenuju, tak k němu pomocí tohoto jména můžu později přistupovat z logické části programu MainWindow jako k C# objektu.
 - **`Grid.row`** – Určení řádku z předešlého bloku kódu, ve kterém se bude vyskytovat (indexování jde od 0).
 - **`AutogenerateColumns`** - Nastavení, zda chceme vygenerovat sloupce automaticky podle obsahu z námi dodané kolekce. V našem případě je uživateli potřeba vypsat pouze některé vlasnosti objektu třídy TaskItem, kterou zde vytvoříme později, proto je nastavení na False.
@@ -103,7 +105,7 @@ Tabulka ve které vypíšeme seznam úkolů.
 - **`BorderThickness`** - Šířka ohraničení tabulky.
 - **`SelectionChanged`** - Je potřeba nastavit metodu, která bude obsluhovat případ, kdy uživatel klikne na jeden z řádků. Pokud není vybrán řádek, hodnota je null. Tuto metodu budemem programovat později.
 ```
-<DataGrid 
+<DataGrid
     x:Name="dataGridTasks"
     Grid.Row="0"
     AutoGenerateColumns="False"
@@ -117,7 +119,7 @@ Tabulka ve které vypíšeme seznam úkolů.
     <!--Zde vložte další kód-->
 </DataGrid>
 ```
-**DataGrid.Resources** Určuje odkud má DataGrid čerpat definice stylu. 
+**DataGrid.Resources** Určuje odkud má DataGrid čerpat definice stylu.
 - **`Style`** - Tag pro definici stylu.. 'příkaz styluj'.
 - **`TargetType`** - Co se bude stylovat.
 - **`Setter Property, Value`** - Co se má nastavit a na co se má to má nastavit.
@@ -162,20 +164,20 @@ pokud vlastnost `IsSelected` na buňce DataGridu má hodnotu `true` (je označen
 ```
 <DataGrid.Columns>
     <!-- Sloupec pro název úkolu -->
-    <DataGridTextColumn 
-        Header="Title" 
+    <DataGridTextColumn
+        Header="Title"
         Binding="{Binding Title}"
         Width="*"/>
 
     <!-- Sloupec pro typ úkolu -->
-    <DataGridTextColumn 
-        Header="Type" 
+    <DataGridTextColumn
+        Header="Type"
         Binding="{Binding Type}"
         Width="150"/>
 
     <!-- Sloupec pro stav úkolu -->
-    <DataGridCheckBoxColumn 
-        Header="Done" 
+    <DataGridCheckBoxColumn
+        Header="Done"
         Binding="{Binding IsDone}"
         Width="100"/>
 </DataGrid.Columns>
@@ -193,19 +195,19 @@ Podobně jako **Grid** slouží k pozicování. Je jednodimenzionální, řadí 
 - **`CheckBox`** - zaškrtávací políčko.
 ```
 <!--Tento kód vložte za </DataGrid> -->
-<StackPanel 
+<StackPanel
     Grid.Row="1"
     Orientation="Vertical"
     Margin="0,10,0,0">
 
     <!-- Panel se vstupními prvky -->
-    <StackPanel 
+    <StackPanel
         Orientation="Horizontal"
         HorizontalAlignment="Center"
         Margin="0,0,0,5">
 
         <!-- TextBox pro název úkolu -->
-        <TextBox 
+        <TextBox
             x:Name="textBoxTask"
             Width="200"
             Height="25"
@@ -215,9 +217,9 @@ Podobně jako **Grid** slouží k pozicování. Je jednodimenzionální, řadí 
             Foreground="#CCCCCC"
             BorderBrush="#3E3E42"
             BorderThickness="1"/>
-    
+
         <!-- ComboBox pro výběr typu úkolu -->
-        <ComboBox 
+        <ComboBox
             x:Name="comboBoxTaskType"
             Width="150"
             Height="25"
@@ -228,9 +230,9 @@ Podobně jako **Grid** slouží k pozicování. Je jednodimenzionální, řadí 
             BorderThickness="1"
             ToolTip="Select task type">
         </ComboBox>
-    
+
         <!-- CheckBox pro nastavení stavu úkolu -->
-        <CheckBox 
+        <CheckBox
             x:Name="checkBoxIsDone"
             Content="Done"
             VerticalAlignment="Center"
@@ -247,11 +249,11 @@ Podobně jako **Grid** slouží k pozicování. Je jednodimenzionální, řadí 
 - **`Cursor`** - Na jakou ikonu se změní ukazatel myši po najetí na tlačítko.
 ```
 <!-- Panel pro tlačítka (přidat/aktualizovat/smazat úkol) -->
-<StackPanel 
+<StackPanel
     Orientation="Horizontal"
     HorizontalAlignment="Center">
 
-    <Button 
+    <Button
         Content="Add New Task"
         Click="AddTask_Click"
         Height="50"
@@ -264,7 +266,7 @@ Podobně jako **Grid** slouží k pozicování. Je jednodimenzionální, řadí 
         BorderBrush="#565656"
         Cursor="Hand" />
 
-    <Button 
+    <Button
         Content="Update Task"
         Click="UpdateTask_Click"
         Height="50"
@@ -277,7 +279,7 @@ Podobně jako **Grid** slouží k pozicování. Je jednodimenzionální, řadí 
         BorderBrush="#565656"
         Cursor="Hand" />
 
-    <Button 
+    <Button
         Content="Delete Task"
         Click="DeleteTask_Click"
         Height="50"
@@ -292,13 +294,13 @@ Podobně jako **Grid** slouží k pozicování. Je jednodimenzionální, řadí 
 </StackPanel>
 
 <!-- Panel pro operace se soubory -->
-<StackPanel 
+<StackPanel
     Grid.Row="2"
     Orientation="Horizontal"
     HorizontalAlignment="Center"
     Margin="0,10,0,0">
 
-    <Button 
+    <Button
         Content="Save to File"
         Click="SaveTasks_Click"
         Height="50"
@@ -311,7 +313,7 @@ Podobně jako **Grid** slouží k pozicování. Je jednodimenzionální, řadí 
         BorderBrush="#565656"
         Cursor="Hand" />
 
-    <Button 
+    <Button
         Content="Load from File"
         Click="LoadTasks_Click"
         Height="50"
@@ -347,14 +349,14 @@ classDiagram
       Personal = 2
       Other = 3
     }
-    
+
     class OperationResult {
       +IsSuccess : bool
       +ErrorMessage : string
       +Success() : OperationResult
       +Failure(errorMessage: string) : OperationResult
     }
-    
+
     class ITaskService {
       <<interface>>
       +Tasks : ObservableCollection~TaskItem~
@@ -364,7 +366,7 @@ classDiagram
       +SaveTasks() : OperationResult
       +LoadTasks() : OperationResult
     }
-    
+
     ITaskService ..> OperationResult : returns
 
     class TaskService {
@@ -376,9 +378,9 @@ classDiagram
       +SaveTasks() : OperationResult
       +LoadTasks() : OperationResult
     }
-    
+
     ITaskService <|.. TaskService : implements
-    
+
     class MainWindow {
       -_taskService : ITaskService
       +MainWindow()
@@ -389,7 +391,7 @@ classDiagram
       +SaveTasks_Click(sender, e)
       +LoadTasks_Click(sender, e)
     }
-    
+
     MainWindow --> ITaskService : uses
 ```
 
@@ -406,7 +408,7 @@ sequenceDiagram
 ```
 
 ### Vytvoření typů record `TaskItem` a enum `TaskType`
-V našem řešení (solution) si vytvoříme nový soubor se jménem `TaskItem.cs`. 
+V našem řešení (solution) si vytvoříme nový soubor se jménem `TaskItem.cs`.
 Tak učiníme v tomto pořadí:
 1. Kliknutím pravého tlačítka myši na libovolný prostor v panelu **Průzkumník řešení - zobrazení složek**.
    - **Neklikat** pravým na složku `obj` nebo `bin`.
@@ -431,7 +433,7 @@ Vytvoříme typ `public record TaskItem` s potřebnými vlastnostmi
 ### Definování typu `enum TaskType`:
 Poté si vytvoříme potřebný **typ** `public enum TaskType`, který má přirazené pojmenované položky k celým číslům.
 ### Co je to enum?
-**Enum** je hodnotový **výčtový typ**. Tento výčtový typ používáme k reprezentaci **volby z množiny vzájemně se vylučujících hodnot nebo jako kombinaci voleb**. Hodnoty jsou defaultně přirazovány k intigerům začínaje `0`, avšak toto nastavení jde změnit. 
+**Enum** je hodnotový **výčtový typ**. Tento výčtový typ používáme k reprezentaci **volby z množiny vzájemně se vylučujících hodnot nebo jako kombinaci voleb**. Hodnoty jsou defaultně přirazovány k intigerům začínaje `0`, avšak toto nastavení jde změnit.
     - pro více detailů: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/enum
 ```
 namespace TodoListWpf;
@@ -498,7 +500,7 @@ public interface ITaskService
 ```
 
 Před implementací `ITaskService` si vytvoříme record typ `OperationResult`.
-Pomocí metod 
+Pomocí metod
 - `Success` vracející hodnotu `True` a **ErrorMessage** jakožto `null`
 - `Failure` vracející hodnotu `False` a **ErrorMessage** jakožto `string`
  Metody se volají na základě `if` statementů níže v kódu. Obsah ErrorMessage se definuje pro **jednotlivé případy** také na základě `if` statementů.
@@ -571,11 +573,11 @@ public class TaskService(string path = "tasks.json") : ITaskService
 }
 ```
 
-Otevřeme si soubor `MainWindow.xaml.cs`, kde se zinicializuje uživatelské okno nadefinované v souboru `MainWindow.xaml`. 
-Zde budou také naprogramovaní **event handlers** (viz prezentace). Event handlers budou propojeni s metodami v třídě `TaskService`. 
-Při vytváření třídy `MainWindow` je potřeba vytvořit **privátní objekt** `_taskService`, jakožto objekt třídy `TaskService`. 
-Jeho vytvoření je **nutné** pro **správu úkolů na popředí i pozadí aplikace**, avšak nemusí byt přístupný pro třídy mimo `MainWindow`. 
-Poté je nutno nastavit **datové zdroje** pro 
+Otevřeme si soubor `MainWindow.xaml.cs`, kde se zinicializuje uživatelské okno nadefinované v souboru `MainWindow.xaml`.
+Zde budou také naprogramovaní **event handlers** (viz prezentace). Event handlers budou propojeni s metodami v třídě `TaskService`.
+Při vytváření třídy `MainWindow` je potřeba vytvořit **privátní objekt** `_taskService`, jakožto objekt třídy `TaskService`.
+Jeho vytvoření je **nutné** pro **správu úkolů na popředí i pozadí aplikace**, avšak nemusí byt přístupný pro třídy mimo `MainWindow`.
+Poté je nutno nastavit **datové zdroje** pro
 - **DataGrid** -kolekce kterou si náš objekt `_taskService` drží
 - **ComboBox** - `TaskTypes` z výše definovaného typu
 Poslední krok při inicializici okna je nastavení defaultní hodnoty ComboBoxu na Other (`TaskType.Other`).
@@ -612,7 +614,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void AddTask_Click(object sender, RoutedEventArgs e)
     {
-        
+
     }
 
     /// <summary>
@@ -620,7 +622,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void UpdateTask_Click(object sender, RoutedEventArgs e)
     {
-        
+
     }
 
     /// <summary>
@@ -636,7 +638,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        
+
     }
 
     /// <summary>
@@ -658,7 +660,7 @@ public partial class MainWindow : Window
 ```
 
 ### Add Task
-Začneme s nejzákladnější metodou. 
+Začneme s nejzákladnější metodou.
 1. Soubor `MainWindow.xaml.cs`, metoda `private void AddTask_Click(object sender, RoutedEventArgs e)`
 - Získaní dat z **uživatelského rozhraní, přetypování a rozřazení do příslušných proměnných**
        - Textbox
@@ -680,7 +682,7 @@ Třída `TaskItem` **vyžaduje** `boolean` hodnotu, avšak hodnota z CheckBoxu m
        - `title` je neplatný
        - objekt `TaskItem` se stejným `task.Title` a `task.Type` již existuje v kolekci `TaskService.Tasks `
 - Pokud nechtěný případ nenastane, lze data proměnit v nový objekt třídy `TaskItem`, přidat jej do kolekce `TaskService.Tasks` a vrátit hodnotu `OperationResult.Success()`
-  
+
 ```
  public OperationResult AddTask(string title, TaskType type, bool isDone)
  {
@@ -739,7 +741,7 @@ private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEvent
     checkBoxIsDone.IsChecked = task.IsDone;
 }
 ```
-### Update task 
+### Update task
 1.Soubor `MainWindow.xaml.cs`, metoda `private void UpdateTask_Click(object sender, RoutedEventArgs e)`
    - Pomocí `if` statementu ošetříme případ **kdy objekt k aktualizaci není `TaskItem`** a zároveň si v něm zkusíme **uložit objekt do proměnné `task`**
            - jestli objekt **je** typu `TaskItem`, tak se do proměnné uloží pomocí `TaskItem task`

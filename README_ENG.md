@@ -1,5 +1,7 @@
 ﻿# WPF + WinForms TODO List
 
+![Visual Studio Setup](images/WPF-Final-Application.png)
+
 This project represents a TODO List, developed using WPF and WinForms.
 
 We will demonstrate the process of creating this application step by step.
@@ -42,7 +44,7 @@ You can download the entire project from GitHub:
 - Editing tasks.
 - Saving tasks to a file (JSON).
 - Loading tasks from a file (JSON).
-- 
+-
 ```mermaid
 flowchart TD
     User[User] --> ViewTasks[View Tasks]
@@ -71,7 +73,7 @@ The Window serves as the main container where we will gradually add and nest oth
 - **`ForeGround`** – Sets the text color in hexadecimal format.
 - **`HorizontalAlignment`** – Defines the alignment of the application window on the user's screen.
 ```
-<Window 
+<Window
     x:Class="TodoListWpf.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -90,23 +92,23 @@ The Window serves as the main container where we will gradually add and nest oth
 
 ### Grid
 
-The **Grid** is an invisible grid that occupies the entire window space and helps us position elements.  
+The **Grid** is an invisible grid that occupies the entire window space and helps us position elements.
 
-- **`Grid Margin`** – Defines the margin of the grid, and therefore, the spacing between elements and the window edges.  
-- **`Grid.RowDefinitions`** – A paired tag used for directly positioning elements.  
+- **`Grid Margin`** – Defines the margin of the grid, and therefore, the spacing between elements and the window edges.
+- **`Grid.RowDefinitions`** – A paired tag used for directly positioning elements.
 
-Since we want to divide our window into three horizontal sections, we need to define three rows where our elements will be placed:  
+Since we want to divide our window into three horizontal sections, we need to define three rows where our elements will be placed:
 
-1. **First RowDefinition** – `Height="*"` means that the row will take up **1/n** of the window space, where `n` is the total number of rows. In our case, it will occupy **one-third** of the window space.  
+1. **First RowDefinition** – `Height="*"` means that the row will take up **1/n** of the window space, where `n` is the total number of rows. In our case, it will occupy **one-third** of the window space.
 2. **Second and Third Rows** – `Height="Auto"` means that the row height will automatically adjust based on the content.
-```    
+```
 <Grid Margin="10">
     <Grid.RowDefinitions>
-        <RowDefinition 
+        <RowDefinition
             Height="*"/>
-        <RowDefinition 
+        <RowDefinition
             Height="Auto"/>
-        <RowDefinition 
+        <RowDefinition
             Height="Auto"/>
     </Grid.RowDefinitions>
     <!--Paste next code here-->
@@ -115,19 +117,19 @@ Since we want to divide our window into three horizontal sections, we need to de
 
 ### DataGrid
 
-The **DataGrid** is a table where we will display the list of tasks.  
+The **DataGrid** is a table where we will display the list of tasks.
 
-- **`x:Name`** – The name of a specific element. By naming the tag, we can later access it in the logic part of the program (`MainWindow`) as a C# object.  
-- **`Grid.Row`** – Specifies the row from the previous code block where the element will be located (indexing starts from `0`).  
-- **`AutoGenerateColumns`** – Determines whether columns should be automatically generated based on the data collection provided. Since we only need to display specific properties of the `TaskItem` class (which we will create later), this is set to `False`.  
-- **`CanUserAddRows`** – Allows users to directly add records to the table. In our case, records will be added using different methods, so this is set to `False`.  
-- **`IsReadOnly`** – Defines whether users can edit the table directly. Since modifications will be handled differently, this is set to `True`.  
-- **`BorderBrush`** – Sets the border color of the table.  
-- **`BorderThickness`** – Defines the border width of the table.  
-- **`SelectionChanged`** – Specifies a method to handle the event when a user selects a row. If no row is selected, the value is `null`. We will implement this method later.  
+- **`x:Name`** – The name of a specific element. By naming the tag, we can later access it in the logic part of the program (`MainWindow`) as a C# object.
+- **`Grid.Row`** – Specifies the row from the previous code block where the element will be located (indexing starts from `0`).
+- **`AutoGenerateColumns`** – Determines whether columns should be automatically generated based on the data collection provided. Since we only need to display specific properties of the `TaskItem` class (which we will create later), this is set to `False`.
+- **`CanUserAddRows`** – Allows users to directly add records to the table. In our case, records will be added using different methods, so this is set to `False`.
+- **`IsReadOnly`** – Defines whether users can edit the table directly. Since modifications will be handled differently, this is set to `True`.
+- **`BorderBrush`** – Sets the border color of the table.
+- **`BorderThickness`** – Defines the border width of the table.
+- **`SelectionChanged`** – Specifies a method to handle the event when a user selects a row. If no row is selected, the value is `null`. We will implement this method later.
 
 ```
-<DataGrid 
+<DataGrid
     x:Name="dataGridTasks"
     Grid.Row="0"
     AutoGenerateColumns="False"
@@ -142,16 +144,16 @@ The **DataGrid** is a table where we will display the list of tasks.
 </DataGrid>
 ```
 
-**DataGrid.Resources** defines where the **DataGrid** should retrieve style definitions from.  
+**DataGrid.Resources** defines where the **DataGrid** should retrieve style definitions from.
 
-- **`Style`** – A tag for defining styles (acts as a 'style command').  
-- **`TargetType`** – Specifies what will be styled.  
-- **`Setter Property, Value`** – Defines what property should be set and to what value.  
-- **`Style.Triggers`** – A style trigger.  
+- **`Style`** – A tag for defining styles (acts as a 'style command').
+- **`TargetType`** – Specifies what will be styled.
+- **`Setter Property, Value`** – Defines what property should be set and to what value.
+- **`Style.Triggers`** – A style trigger.
 
-Within the **`Style.Triggers`** tags, we can define individual triggers.  
-For example, if the **`IsSelected`** property of a **DataGrid** cell is `true` (meaning the cell is selected),  
-then the trigger will automatically change the **border color** to **yellow**.  
+Within the **`Style.Triggers`** tags, we can define individual triggers.
+For example, if the **`IsSelected`** property of a **DataGrid** cell is `true` (meaning the cell is selected),
+then the trigger will automatically change the **border color** to **yellow**.
 ```
 <DataGrid.Resources>
     <Style TargetType="DataGridColumnHeader">
@@ -179,37 +181,37 @@ then the trigger will automatically change the **border color** to **yellow**.
 ```
 
 
- **DataGrid.Columns** defines the columns of the table.  
+ **DataGrid.Columns** defines the columns of the table.
 
-- **`DataGridTextColumn`** – Defines a column that contains text.  
-- **`DataGridCheckBoxColumn`** – Defines a column that contains checkboxes.  
-- **`Binding`** – Determines whether the table is bound to a collection of objects.  
+- **`DataGridTextColumn`** – Defines a column that contains text.
+- **`DataGridCheckBoxColumn`** – Defines a column that contains checkboxes.
+- **`Binding`** – Determines whether the table is bound to a collection of objects.
 
-In our case, the **DataGrid** is bound to a **task list**, which is a collection of objects of the `TaskItem` class.  
-Each `TaskItem` has the following attributes:  
-- **`Title (string)`**  
-- **`Type (string)`**  
-- **`Done (CheckBox, i.e., boolean + null)`**  
+In our case, the **DataGrid** is bound to a **task list**, which is a collection of objects of the `TaskItem` class.
+Each `TaskItem` has the following attributes:
+- **`Title (string)`**
+- **`Type (string)`**
+- **`Done (CheckBox, i.e., boolean + null)`**
 
-The **DataGrid** recognizes the list of `TaskItem` objects using **binding** and automatically organizes them based on the corresponding column headers and attributes.  
+The **DataGrid** recognizes the list of `TaskItem` objects using **binding** and automatically organizes them based on the corresponding column headers and attributes.
 
 ```
 <DataGrid.Columns>
     <!-- Column for task name -->
-    <DataGridTextColumn 
-        Header="Title" 
+    <DataGridTextColumn
+        Header="Title"
         Binding="{Binding Title}"
         Width="*"/>
 
     <!-- Column for task type -->
-    <DataGridTextColumn 
-        Header="Type" 
+    <DataGridTextColumn
+        Header="Type"
         Binding="{Binding Type}"
         Width="150"/>
 
     <!-- Column for task state -->
-    <DataGridCheckBoxColumn 
-        Header="Done" 
+    <DataGridCheckBoxColumn
+        Header="Done"
         Binding="{Binding IsDone}"
         Width="100"/>
 </DataGrid.Columns>
@@ -217,34 +219,34 @@ The **DataGrid** recognizes the list of `TaskItem` objects using **binding** and
 
 ### StackPanel
 
-Similar to **Grid**, it is used for positioning elements. However, it is **one-dimensional**,  
-aligning elements either **vertically** (one below another) or **horizontally** (side by side) using the **`Orientation`** property.  
+Similar to **Grid**, it is used for positioning elements. However, it is **one-dimensional**,
+aligning elements either **vertically** (one below another) or **horizontally** (side by side) using the **`Orientation`** property.
 
-- **`Margin`** – Defines spacing (in this order: **left, top, right, bottom**).  
-- **`TextBox`** – A text input field for users.  
-- **`ToolTip`** – A tooltip providing guidance to the user on how to use the text field.  
-  - The tooltip appears when the user hovers over the text field and holds the mouse there for a moment (no need to click).  
-- **`ComboBox`** – A dropdown list of selectable options.  
-- **`ComboBoxItem`** – Items in the ComboBox can be defined directly in XAML.  
-  - However, we **will not** use this method, as our options will be loaded dynamically using the `TaskType` enumeration,  
-    which serves as the data source (we will implement this later).  
-- **`CheckBox`** – A checkbox input.  
+- **`Margin`** – Defines spacing (in this order: **left, top, right, bottom**).
+- **`TextBox`** – A text input field for users.
+- **`ToolTip`** – A tooltip providing guidance to the user on how to use the text field.
+  - The tooltip appears when the user hovers over the text field and holds the mouse there for a moment (no need to click).
+- **`ComboBox`** – A dropdown list of selectable options.
+- **`ComboBoxItem`** – Items in the ComboBox can be defined directly in XAML.
+  - However, we **will not** use this method, as our options will be loaded dynamically using the `TaskType` enumeration,
+    which serves as the data source (we will implement this later).
+- **`CheckBox`** – A checkbox input.
 
 ```
 <!--Paste this code after </DataGrid> -->
-<StackPanel 
+<StackPanel
     Grid.Row="1"
     Orientation="Vertical"
     Margin="0,10,0,0">
 
     <!-- Panel with input elements -->
-    <StackPanel 
+    <StackPanel
         Orientation="Horizontal"
         HorizontalAlignment="Center"
         Margin="0,0,0,5">
 
         <!-- TextBox for task name -->
-        <TextBox 
+        <TextBox
             x:Name="textBoxTask"
             Width="200"
             Height="25"
@@ -254,9 +256,9 @@ aligning elements either **vertically** (one below another) or **horizontally** 
             Foreground="#CCCCCC"
             BorderBrush="#3E3E42"
             BorderThickness="1"/>
-    
+
         <!-- ComboBox for task type selection -->
-        <ComboBox 
+        <ComboBox
             x:Name="comboBoxTaskType"
             Width="150"
             Height="25"
@@ -267,9 +269,9 @@ aligning elements either **vertically** (one below another) or **horizontally** 
             BorderThickness="1"
             ToolTip="Select task type">
         </ComboBox>
-    
+
         <!-- CheckBox for setting the task status -->
-        <CheckBox 
+        <CheckBox
             x:Name="checkBoxIsDone"
             Content="Done"
             VerticalAlignment="Center"
@@ -280,19 +282,19 @@ aligning elements either **vertically** (one below another) or **horizontally** 
 </StackPanel>
 ```
 
-**Button** - a button for user interaction.  
+**Button** - a button for user interaction.
 
-- **`Content`** – Defines the text displayed on the button.  
-- **`Click`** – Specifies the event triggered when the button is clicked.  
-- **`Cursor`** – Determines the mouse cursor icon when hovering over the button.  
+- **`Content`** – Defines the text displayed on the button.
+- **`Click`** – Specifies the event triggered when the button is clicked.
+- **`Cursor`** – Determines the mouse cursor icon when hovering over the button.
 
 ```
 <!-- Button panel (add/update/delete task) -->
-<StackPanel 
+<StackPanel
     Orientation="Horizontal"
     HorizontalAlignment="Center">
 
-    <Button 
+    <Button
         Content="Add New Task"
         Click="AddTask_Click"
         Height="50"
@@ -305,7 +307,7 @@ aligning elements either **vertically** (one below another) or **horizontally** 
         BorderBrush="#565656"
         Cursor="Hand" />
 
-    <Button 
+    <Button
         Content="Update Task"
         Click="UpdateTask_Click"
         Height="50"
@@ -318,7 +320,7 @@ aligning elements either **vertically** (one below another) or **horizontally** 
         BorderBrush="#565656"
         Cursor="Hand" />
 
-    <Button 
+    <Button
         Content="Delete Task"
         Click="DeleteTask_Click"
         Height="50"
@@ -333,13 +335,13 @@ aligning elements either **vertically** (one below another) or **horizontally** 
 </StackPanel>
 
 <!-- Panel for file operations -->
-<StackPanel 
+<StackPanel
     Grid.Row="2"
     Orientation="Horizontal"
     HorizontalAlignment="Center"
     Margin="0,10,0,0">
 
-    <Button 
+    <Button
         Content="Save to File"
         Click="SaveTasks_Click"
         Height="50"
@@ -352,7 +354,7 @@ aligning elements either **vertically** (one below another) or **horizontally** 
         BorderBrush="#565656"
         Cursor="Hand" />
 
-    <Button 
+    <Button
         Content="Load from File"
         Click="LoadTasks_Click"
         Height="50"
@@ -367,7 +369,7 @@ aligning elements either **vertically** (one below another) or **horizontally** 
 </StackPanel>
 ```
 
-## **Creating Program Logic**  
+## **Creating Program Logic**
 
 ### Architecture
 ```mermaid
@@ -388,14 +390,14 @@ classDiagram
       Personal = 2
       Other = 3
     }
-    
+
     class OperationResult {
       +IsSuccess : bool
       +ErrorMessage : string
       +Success() : OperationResult
       +Failure(errorMessage: string) : OperationResult
     }
-    
+
     class ITaskService {
       <<interface>>
       +Tasks : ObservableCollection~TaskItem~
@@ -405,7 +407,7 @@ classDiagram
       +SaveTasks() : OperationResult
       +LoadTasks() : OperationResult
     }
-    
+
     ITaskService ..> OperationResult : returns
 
     class TaskService {
@@ -417,9 +419,9 @@ classDiagram
       +SaveTasks() : OperationResult
       +LoadTasks() : OperationResult
     }
-    
+
     ITaskService <|.. TaskService : implements
-    
+
     class MainWindow {
       -_taskService : ITaskService
       +MainWindow()
@@ -430,7 +432,7 @@ classDiagram
       +SaveTasks_Click(sender, e)
       +LoadTasks_Click(sender, e)
     }
-    
+
     MainWindow --> ITaskService : uses
 ```
 
@@ -446,54 +448,54 @@ sequenceDiagram
     MW->>XAML: Update UI based on OperationResult
 ```
 
-#### **Creating the `TaskItem` Record and enum `TaskType`**  
+#### **Creating the `TaskItem` Record and enum `TaskType`**
 
-In our solution  we will create a new file named `TaskItem`.  
+In our solution  we will create a new file named `TaskItem`.
 
-To do this:  
-1. Right-click anywhere in the **Solution Explorer** panel (folder view).  
-   - **Do not** click on the `obj` or `bin` folders.  
-   - A good alternative is right-clicking on `ToDoListWpf.csproj`.  
-2. Select **Add -> New File**.  
-3. Rename the new file to **`TaskItem.cs`**.  
+To do this:
+1. Right-click anywhere in the **Solution Explorer** panel (folder view).
+   - **Do not** click on the `obj` or `bin` folders.
+   - A good alternative is right-clicking on `ToDoListWpf.csproj`.
+2. Select **Add -> New File**.
+3. Rename the new file to **`TaskItem.cs`**.
 
 ![Visual Studio Setup](images/vytvorTyp0.png)
 
 
-Now we can implement the behavior of these two types. We will not define them as **classes** unnecessarily,  
-because given their role in the program logic, it is not needed and might even be counterproductive.  
+Now we can implement the behavior of these two types. We will not define them as **classes** unnecessarily,
+because given their role in the program logic, it is not needed and might even be counterproductive.
 
-We need to define **which namespace** we are working in:  
+We need to define **which namespace** we are working in:
 ```
 namespace ToDoListWpf;
 ```
 
-Then, we create a **record** type called `TaskItem` with the following properties:  
+Then, we create a **record** type called `TaskItem` with the following properties:
 
-- **`Id`** (`Guid`) – A globally unique identifier.  
-- **`Title`** (`string`) – Represents the task description in the To-Do List.  
-- **`Type`** (`TaskType`) – Specifies what category the task belongs to (we will define the `TaskType` enum below).  
-- **`IsDone`** (`bool`) – A flag that by default indicates that the task is **not yet completed**.  
+- **`Id`** (`Guid`) – A globally unique identifier.
+- **`Title`** (`string`) – Represents the task description in the To-Do List.
+- **`Type`** (`TaskType`) – Specifies what category the task belongs to (we will define the `TaskType` enum below).
+- **`IsDone`** (`bool`) – A flag that by default indicates that the task is **not yet completed**.
 
-**What is a Record?**  
+**What is a Record?**
 
-In C#, a **record** can be considered a class, but it is primarily a **structured type**  
-designed for storing **immutable data**.  
+In C#, a **record** can be considered a class, but it is primarily a **structured type**
+designed for storing **immutable data**.
 
 More details: https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/records
 
 
-**Defining the `TaskType` Enum**  
+**Defining the `TaskType` Enum**
 
-Next, we create an **enum** called `TaskType`, which contains named values assigned to whole numbers.  
+Next, we create an **enum** called `TaskType`, which contains named values assigned to whole numbers.
 
-**What is an Enum?**  
+**What is an Enum?**
 
-An **enum** is a **value type** used to represent a selection from a set of **mutually exclusive values**  
-or a **combination of choices**.  
+An **enum** is a **value type** used to represent a selection from a set of **mutually exclusive values**
+or a **combination of choices**.
 
-By default, **enum values** are assigned **integer values starting from `0`**,  
-but this behavior can be customized if needed.  
+By default, **enum values** are assigned **integer values starting from `0`**,
+but this behavior can be customized if needed.
 
 More details: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/enum
 ```
@@ -516,19 +518,19 @@ public enum TaskType { Work = 0, University = 1, Personal = 2, Other = 3 }
 
 Now we create a new file named **TaskService.cs**
 
-This file will contain the following components:  
+This file will contain the following components:
 
-- **`ITaskService`** – An interface defining necessary methods.  
-- **`TaskService : ITaskService`** – A class implementing the interface.  
-- **`OperationResult`** – A record used for operation validation.  
+- **`ITaskService`** – An interface defining necessary methods.
+- **`TaskService : ITaskService`** – A class implementing the interface.
+- **`OperationResult`** – A record used for operation validation.
 
-Although **`ITaskService`** is not strictly necessary, it helps clarify the logic  
-and define the required methods for the application to function correctly.  
+Although **`ITaskService`** is not strictly necessary, it helps clarify the logic
+and define the required methods for the application to function correctly.
 
-The methods within **`ITaskService`** will return values of type **`OperationResult`**,  
-which allows us to verify whether operations have been executed successfully or not.  
+The methods within **`ITaskService`** will return values of type **`OperationResult`**,
+which allows us to verify whether operations have been executed successfully or not.
 
-We will define **`OperationResult`** later.  
+We will define **`OperationResult`** later.
 ```
 using System.Collections.ObjectModel;
 
@@ -568,16 +570,16 @@ public interface ITaskService
 }
 ```
 
-Before implementing **`ITaskService`**, we will create a **record type** called `OperationResult`.  
+Before implementing **`ITaskService`**, we will create a **record type** called `OperationResult`.
 
-This type provides two methods:  
+This type provides two methods:
 
-- **`Success`** – Returns a **boolean value (`true`)** indicating a successful operation.  
-- **`Failure`** – Returns a **boolean value (`false`)** along with an **`ErrorMessage`**,  
-  which can be either `null` or a `string`.  
+- **`Success`** – Returns a **boolean value (`true`)** indicating a successful operation.
+- **`Failure`** – Returns a **boolean value (`false`)** along with an **`ErrorMessage`**,
+  which can be either `null` or a `string`.
 
-The methods are called based on **`if` statements** in the code,  
-and the content of **`ErrorMessage`** is also defined for specific cases based on conditions within **`if` statements**.  
+The methods are called based on **`if` statements** in the code,
+and the content of **`ErrorMessage`** is also defined for specific cases based on conditions within **`if` statements**.
 ```
 /// <summary>
 /// Represents the result of an operation, e.g. when adding, updating, or deleting a task.
@@ -601,17 +603,17 @@ public record OperationResult(bool IsSuccess, string? ErrorMessage)
 ```
 
 
-We will predefine the implementation of **`ITaskService`** in the form of a class **`TaskService`**.  
+We will predefine the implementation of **`ITaskService`** in the form of a class **`TaskService`**.
 
-Since our application will be able to **save and load tasks** to/from a file,  
-we need to:  
+Since our application will be able to **save and load tasks** to/from a file,
+we need to:
 
-- **Create the file**  
-- **Name it**  
-- **Define its path**  
+- **Create the file**
+- **Name it**
+- **Define its path**
 
-The **`TaskService`** class will internally **maintain a collection of tasks**,  
-allowing direct manipulation of tasks within the application.  
+The **`TaskService`** class will internally **maintain a collection of tasks**,
+allowing direct manipulation of tasks within the application.
 ```
 /// <summary>
 /// Service for managing tasks.
@@ -653,25 +655,25 @@ public class TaskService(string path = "tasks.json") : ITaskService
 }
 ```
 
-We open the **`MainWindow.xaml.cs`** file to initialize the user interface  
-defined in **`MainWindow.xaml`**.  
+We open the **`MainWindow.xaml.cs`** file to initialize the user interface
+defined in **`MainWindow.xaml`**.
 
-This file will also contain **event handlers** (see presentation).  
-These event handlers will be linked to methods in the **`TaskService`** class.  
+This file will also contain **event handlers** (see presentation).
+These event handlers will be linked to methods in the **`TaskService`** class.
 
-When creating the **`MainWindow`** class, we need to define a **private object** `_taskService`  
-as an instance of the **`TaskService`** class. 
+When creating the **`MainWindow`** class, we need to define a **private object** `_taskService`
+as an instance of the **`TaskService`** class.
 
 This object is necessary for managing tasks in both the **foreground** and **background** of the application. However, it **should not be accessible** to classes outside `MainWindow`.
 
-Then we must set the data sources for:  
+Then we must set the data sources for:
 
-- **The `DataGrid`** – Using the **task collection** maintained by `_taskService`.  
+- **The `DataGrid`** – Using the **task collection** maintained by `_taskService`.
 - **The `ComboBox`** – Using the **`TaskTypes`** enum defined earlier.
 
 The last step in **window initialization** is setting the **default value** of the **ComboBox** to **`Other`** (`TaskType.Other`).
-In addition to the functions defined in `_taskService` and linked to the UI in the **XAML file**, we also need to implement the **`DataGridTasks_SelectionChanged()`** function.  
-- This function was set as an **event handler** in XAML.  
+In addition to the functions defined in `_taskService` and linked to the UI in the **XAML file**, we also need to implement the **`DataGridTasks_SelectionChanged()`** function.
+- This function was set as an **event handler** in XAML.
 - It will be triggered when the user **clicks on a row** in the **DataGrid**.
 ```
 using System.Windows;
@@ -703,7 +705,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void AddTask_Click(object sender, RoutedEventArgs e)
     {
-        
+
     }
 
     /// <summary>
@@ -711,7 +713,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void UpdateTask_Click(object sender, RoutedEventArgs e)
     {
-        
+
     }
 
     /// <summary>
@@ -727,7 +729,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        
+
     }
 
     /// <summary>
