@@ -327,6 +327,84 @@ Podobně jako **Grid** slouží k pozicování. Je jednodimenzionální, řadí 
 ```
 
 ## Tvorba logiky programu
+
+### Architektura
+```mermaid
+classDiagram
+    class TaskItem {
+      +Id : Guid
+      +Title : string
+      +Type : TaskType
+      +IsDone : bool
+    }
+
+    TaskItem *-- TaskType
+
+    class TaskType {
+      <<enumeration>>
+      Work = 0
+      University = 1
+      Personal = 2
+      Other = 3
+    }
+    
+    class OperationResult {
+      +IsSuccess : bool
+      +ErrorMessage : string
+      +Success() : OperationResult
+      +Failure(errorMessage: string) : OperationResult
+    }
+    
+    class ITaskService {
+      <<interface>>
+      +Tasks : ObservableCollection~TaskItem~
+      +AddTask(title: string, type: TaskType, isDone: bool) : OperationResult
+      +UpdateTask(task: TaskItem, title: string, type: TaskType, isDone: bool) : OperationResult
+      +DeleteTask(task: TaskItem) : OperationResult
+      +SaveTasks() : OperationResult
+      +LoadTasks() : OperationResult
+    }
+    
+    ITaskService ..> OperationResult : returns
+
+    class TaskService {
+      +Tasks : ObservableCollection~TaskItem~
+      +TaskService(path: string = "tasks.json")
+      +AddTask(title: string, type: TaskType, isDone: bool) : OperationResult
+      +UpdateTask(task: TaskItem, title: string, type: TaskType, isDone: bool) : OperationResult
+      +DeleteTask(task: TaskItem) : OperationResult
+      +SaveTasks() : OperationResult
+      +LoadTasks() : OperationResult
+    }
+    
+    ITaskService <|.. TaskService : implements
+    
+    class MainWindow {
+      -_taskService : ITaskService
+      +MainWindow()
+      +AddTask_Click(sender, e)
+      +UpdateTask_Click(sender, e)
+      +DeleteTask_Click(sender, e)
+      +DataGridTasks_SelectionChanged(sender, e)
+      +SaveTasks_Click(sender, e)
+      +LoadTasks_Click(sender, e)
+    }
+    
+    MainWindow --> ITaskService : uses
+```
+
+### Průběh událostí
+```mermaid
+sequenceDiagram
+    participant XAML as MainWindow.xaml
+    participant MW as MainWindow.xaml.cs
+    participant TS as TaskService
+    XAML->>MW: User clicks button (e.g., AddTask_Click)
+    MW->>TS: Invoke AddTask(...)
+    TS->>MW: Return OperationResult
+    MW->>XAML: Update UI based on OperationResult
+```
+
 ### Vytvoření typů record `TaskItem` a enum `TaskType`
 V našem řešení (solution) si vytvoříme nový soubor se jménem `TaskItem.cs`. 
 Tak učiníme v tomto pořadí:
@@ -578,6 +656,7 @@ public partial class MainWindow : Window
     }
 }
 ```
+
 ### Add Task
 Začneme s nejzákladnější metodou. 
 1. Soubor `MainWindow.xaml.cs`, metoda `private void AddTask_Click(object sender, RoutedEventArgs e)`
@@ -588,15 +667,14 @@ Začneme s nejzákladnější metodou.
 - zkusit proměnit nasbíraná data na objekt `TaskItem` pomocí `_taskService.AddTask(title, type, isDone)` a výsledek operace uložit do proměnné `result`
 Třída `TaskItem` **vyžaduje** `boolean` hodnotu, avšak hodnota z CheckBoxu může být i `null`. Přetypování provedeme **porovnáním uživatelského vstupu s hodnotou `True`**.
 
-
 ```
     string title = textBoxTask.Text.Trim();
     TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
     bool isDone = checkBoxIsDone.IsChecked == true;
 
     OperationResult result = _taskService.AddTask(title, type, isDone);
-   
 ```
+
 2. Soubor `TaskService.cs`, třída `TaskService`, metoda `public OperationResult AddTask(string title, TaskType type, bool isDone)`
 - Ošetření nechtěných případů `if` statemnty a vrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage
        - `title` je neplatný
@@ -760,10 +838,12 @@ public OperationResult DeleteTask(TaskItem task)
     {
         return OperationResult.Failure("Task cannot be null.");
     }
+
     if (!Tasks.Contains(task))
     {
         return OperationResult.Failure("Task not found.");
     }
+
     Tasks.Remove(task);
     return OperationResult.Success();
 }
