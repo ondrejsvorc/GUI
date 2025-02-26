@@ -44,7 +44,6 @@ You can download the entire project from GitHub:
 - Editing tasks.
 - Saving tasks to a file (JSON).
 - Loading tasks from a file (JSON).
--
 ```mermaid
 flowchart TD
     User[User] --> ViewTasks[View Tasks]
@@ -72,7 +71,7 @@ The Window serves as the main container where we will gradually add and nest oth
 - **`FontSize`** – Determines the font size.
 - **`ForeGround`** – Sets the text color in hexadecimal format.
 - **`HorizontalAlignment`** – Defines the alignment of the application window on the user's screen.
-```
+```xaml
 <Window
     x:Class="TodoListWpf.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -128,7 +127,7 @@ The **DataGrid** is a table where we will display the list of tasks.
 - **`BorderThickness`** – Defines the border width of the table.
 - **`SelectionChanged`** – Specifies a method to handle the event when a user selects a row. If no row is selected, the value is `null`. We will implement this method later.
 
-```
+```xaml
 <DataGrid
     x:Name="dataGridTasks"
     Grid.Row="0"
@@ -154,7 +153,7 @@ The **DataGrid** is a table where we will display the list of tasks.
 Within the **`Style.Triggers`** tags, we can define individual triggers.
 For example, if the **`IsSelected`** property of a **DataGrid** cell is `true` (meaning the cell is selected),
 then the trigger will automatically change the **border color** to **yellow**.
-```
+```xaml
 <DataGrid.Resources>
     <Style TargetType="DataGridColumnHeader">
         <Setter Property="Background" Value="#3E3E42"/>
@@ -195,7 +194,7 @@ Each `TaskItem` has the following attributes:
 
 The **DataGrid** recognizes the list of `TaskItem` objects using **binding** and automatically organizes them based on the corresponding column headers and attributes.
 
-```
+```xaml
 <DataGrid.Columns>
     <!-- Column for task name -->
     <DataGridTextColumn
@@ -232,7 +231,7 @@ aligning elements either **vertically** (one below another) or **horizontally** 
     which serves as the data source (we will implement this later).
 - **`CheckBox`** – A checkbox input.
 
-```
+```xaml
 <!--Paste this code after </DataGrid> -->
 <StackPanel
     Grid.Row="1"
@@ -288,7 +287,7 @@ aligning elements either **vertically** (one below another) or **horizontally** 
 - **`Click`** – Specifies the event triggered when the button is clicked.
 - **`Cursor`** – Determines the mouse cursor icon when hovering over the button.
 
-```
+```xaml
 <!-- Button panel (add/update/delete task) -->
 <StackPanel
     Orientation="Horizontal"
@@ -498,7 +497,7 @@ By default, **enum values** are assigned **integer values starting from `0`**,
 but this behavior can be customized if needed.
 
 More details: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/enum
-```
+```csharp
 namespace TodoListWpf;
 
 /// <summary>
@@ -531,7 +530,7 @@ The methods within **`ITaskService`** will return values of type **`OperationRes
 which allows us to verify whether operations have been executed successfully or not.
 
 We will define **`OperationResult`** later.
-```
+```csharp
 using System.Collections.ObjectModel;
 
 namespace TodoListWpf;
@@ -580,7 +579,7 @@ This type provides two methods:
 
 The methods are called based on **`if` statements** in the code,
 and the content of **`ErrorMessage`** is also defined for specific cases based on conditions within **`if` statements**.
-```
+```csharp
 /// <summary>
 /// Represents the result of an operation, e.g. when adding, updating, or deleting a task.
 /// Contains information about whether the operation was successful, and an optional error message if the operation failed.
@@ -614,7 +613,7 @@ we need to:
 
 The **`TaskService`** class will internally **maintain a collection of tasks**,
 allowing direct manipulation of tasks within the application.
-```
+```csharp
 /// <summary>
 /// Service for managing tasks.
 /// </summary>
@@ -675,7 +674,7 @@ The last step in **window initialization** is setting the **default value** of t
 In addition to the functions defined in `_taskService` and linked to the UI in the **XAML file**, we also need to implement the **`DataGridTasks_SelectionChanged()`** function.
 - This function was set as an **event handler** in XAML.
 - It will be triggered when the user **clicks on a row** in the **DataGrid**.
-```
+```csharp
 using System.Windows;
 using System.Windows.Controls;
 
@@ -749,3 +748,306 @@ public partial class MainWindow : Window
     }
 }
 ```
+
+### Add Task  
+Let's start with the most basic method.
+
+1. **File `MainWindow.xaml.cs`, method `private void AddTask_Click(object sender, RoutedEventArgs e)`**  
+   - Retrieve data from the **user interface, cast, and assign to corresponding variables**:  
+       - Textbox  
+       - ComboBox  
+       - CheckBox  
+   - Try to convert the collected data into a `TaskItem` object using `_taskService.AddTask(title, type, isDone)` and store the result of the operation in the variable `result`.
+
+```csharp
+string title = textBoxTask.Text.Trim();
+TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
+bool isDone = checkBoxIsDone.IsChecked == true;
+
+OperationResult result = _taskService.AddTask(title, type, isDone);
+```
+
+2. **File `TaskService.cs`, class `TaskService`, method `public OperationResult AddTask(string title, TaskType type, bool isDone)`**  
+   - Handle unwanted cases with `if` statements and return `OperationResult.Failure()` with a **corresponding** ErrorMessage:  
+       - `title` is invalid  
+       - A `TaskItem` object with the same `task.Title` and `task.Type` already exists in the collection `TaskService.Tasks`  
+   - If no unwanted case occurs, convert the data into a new `TaskItem` object, add it to the collection `TaskService.Tasks`, and return `OperationResult.Success()`.
+
+```csharp
+public OperationResult AddTask(string title, TaskType type, bool isDone)
+{
+    if (string.IsNullOrEmpty(title))
+    {
+        return OperationResult.Failure("Title cannot be empty.");
+    }
+
+    foreach (TaskItem task in Tasks)
+    {
+        if (task.Title.ToLower() == title.ToLower() && task.Type == type)
+        {
+            return OperationResult.Failure("Task with this title already exists.");
+        }
+    }
+
+    TaskItem taskItem = new TaskItem(Guid.NewGuid(), title, type, isDone);
+    Tasks.Add(taskItem);
+    return OperationResult.Success();
+}
+```
+
+3. **File `MainWindow.xaml.cs`, method `private void AddTask_Click(object sender, RoutedEventArgs e)`**  
+   - Based on `result`, display or do not display the ErrorMessage.  
+   - Use the `Clear()` method to empty `TextBoxTask`, preparing it for further user input.
+
+```csharp
+if (!result.IsSuccess)
+{
+    MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+    return;
+}
+
+textBoxTask.Clear();
+```
+
+---
+
+### DataGridTasks_SelectionChanged  
+Promised method.  
+**File `MainWindow.xaml.cs`, method `private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)`**
+
+1. Handle the case when no object is selected (i.e., no row is chosen in the table), yet the method is invoked.  
+   - The solution is to exit the function using `return`.
+
+2. Save and cast the existing object to `TaskItem` into the variable `task`.
+
+3. Assign the individual values to the **corresponding attributes**.
+
+```csharp
+private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
+{
+    if (dataGridTasks.SelectedItem is null)
+    {
+        return;
+    }
+
+    TaskItem task = (TaskItem)dataGridTasks.SelectedItem;
+
+    textBoxTask.Text = task.Title;
+    comboBoxTaskType.SelectedItem = task.Type;
+    checkBoxIsDone.IsChecked = task.IsDone;
+}
+```
+
+---
+
+### Update Task  
+1. **File `MainWindow.xaml.cs`, method `private void UpdateTask_Click(object sender, RoutedEventArgs e)`**  
+   - Use an `if` statement to handle the case when the object to update is not a `TaskItem` and at the same time try to store the object in the variable `task`:  
+       - If the object **is** of type `TaskItem`, store it in the variable using `TaskItem task`  
+       - If the object **is not** of type `TaskItem`, display an appropriate message using `MessageBox.Show()` and exit the function with `return;`  
+   - If this case does not occur, cast and store user inputs into **corresponding variables** (similar to the `AddTask_Click` method).  
+   - Try to convert this data into an updated task using `_taskService.UpdateTask(task, title, type, isDone)` and store the operation result in the variable `result`.
+
+```csharp
+if (dataGridTasks.SelectedItem is not TaskItem task)
+{
+    MessageBox.Show("Select task to update.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+    return;
+}
+
+string title = textBoxTask.Text.Trim();
+TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
+bool isDone = checkBoxIsDone.IsChecked == true;
+
+OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
+```
+
+2. **File `TaskService.cs`, class `TaskService`, method `public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)`**  
+   - Handle unwanted cases with `if` statements and return `OperationResult.Failure()` with a **corresponding** ErrorMessage:  
+       - The object is `null`  
+       - `title` is invalid  
+       - A `TaskItem` object with the same `task.Title` and `task.Type` already exists in the collection `TaskService.Tasks`  
+       - Since `TaskItem` objects are **indexed**, we can more easily check if the objects actually exist:  
+             - **if the index search (`Tasks.IndexOf(task)`) returns `-1`, the object does not exist**  
+   - Only if no unwanted case arises, replace the existing `TaskItem` object in the collection `TaskService.Tasks` with a new `TaskItem` object **with new values but the same index** and return `OperationResult.Success()`.
+
+```csharp
+public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)
+{
+    if (task is null)
+    {
+        return OperationResult.Failure("Task cannot be null.");
+    }
+
+    if (string.IsNullOrEmpty(title))
+    {
+        return OperationResult.Failure("Title cannot be empty.");
+    }
+
+    foreach (TaskItem taskItem in Tasks)
+    {
+        if (task.Title.ToLower() == title.ToLower() && task.Type == type)
+        {
+            return OperationResult.Failure("Task with this title already exists.");
+        }
+    }
+
+    int index = Tasks.IndexOf(task);
+    if (index == -1)
+    {
+        return OperationResult.Failure("Task not found.");
+    }
+
+    Tasks[index] = new TaskItem(task.Id, title, type, isDone);
+    return OperationResult.Success();
+}
+```
+
+3. **File `MainWindow.xaml.cs`, method `private void UpdateTask_Click(object sender, RoutedEventArgs e)`**  
+   - Based on `result`, display or do not display the ErrorMessage.  
+   - Use the `Clear()` method to empty `TextBoxTask`, preparing it for further user input.
+
+```csharp
+if (!result.IsSuccess)
+{
+    MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+}
+textBoxTask.Clear();
+```
+
+---
+
+### Delete Task  
+1. **File `MainWindow.xaml.cs`, method `private void DeleteTask_Click(object sender, RoutedEventArgs e)`**  
+   - Use an `if` statement to handle the case when the selected object for deletion is not a `TaskItem` and at the same time try to store the object in the variable `task`:  
+       - If the object **is** of type `TaskItem`, store it in the variable using `TaskItem task`  
+       - If the object **is not** of type `TaskItem`, display an appropriate message using `MessageBox.Show()` and exit the function with `return;`  
+   - Attempt to delete the `TaskItem` object stored in the variable `task` using `_taskService.DeleteTask(task)` and store the result in the variable `result`.
+
+```csharp
+if (dataGridTasks.SelectedItem is not TaskItem task)
+{
+    MessageBox.Show("Select task to delete.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+    return;
+}
+
+OperationResult result = _taskService.DeleteTask(task);
+```
+
+2. **File `TaskService.cs`, class `TaskService`, method `public OperationResult DeleteTask(TaskItem task)`**  
+   - Handle unwanted cases with `if` statements and return `OperationResult.Failure()` with a **corresponding** ErrorMessage if the `TaskItem` object in the variable `task`:  
+        - is `null`  
+        - is not contained in the collection `TaskService.Tasks`  
+   - If the `TaskItem` object is valid, delete it from the collection `TaskService.Tasks` using `Tasks.Remove(task)` and return `OperationResult.Success()`.
+
+```csharp
+public OperationResult DeleteTask(TaskItem task)
+{
+    if (task is null)
+    {
+        return OperationResult.Failure("Task cannot be null.");
+    }
+
+    if (!Tasks.Contains(task))
+    {
+        return OperationResult.Failure("Task not found.");
+    }
+
+    Tasks.Remove(task);
+    return OperationResult.Success();
+}
+```
+
+3. **File `MainWindow.xaml.cs`, method `private void DeleteTask_Click(object sender, RoutedEventArgs e)`**  
+   - Based on `result`, display or do not display the ErrorMessage.  
+   - Use the `Clear()` method to empty `TextBoxTask`, preparing it for further user input.
+
+```csharp
+if (!result.IsSuccess)
+{
+    MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+}
+textBoxTask.Clear();
+```
+
+### Save Tasks
+This functionality saves the current tasks to a file by serializing them into a JSON format.
+
+**Event Handler in MainWindow.xaml.cs:**
+```csharp
+/// <summary>
+/// Saves tasks to a file.
+/// </summary>
+private void SaveTasks_Click(object sender, RoutedEventArgs e)
+{
+    OperationResult result = _taskService.SaveTasks();
+    if (!result.IsSuccess)
+    {
+        MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+}
+```
+
+```csharp
+/// <inheritdoc/>
+public OperationResult SaveTasks()
+{
+    try
+    {
+        string json = JsonSerializer.Serialize(Tasks, new JsonSerializerOptions() { WriteIndented = true });
+        File.WriteAllText(path, json);
+    }
+    catch
+    {
+        return OperationResult.Failure("Tasks could not be saved to file.");
+    }
+
+    return OperationResult.Success();
+}
+```
+
+### Load Tasks
+This functionality loads tasks from a file. If the file does not exist, an empty file is created. The JSON data is then deserialized into a collection of tasks.
+
+```csharp
+/// <summary>
+/// Loads tasks from a file.
+/// </summary>
+private void LoadTasks_Click(object sender, RoutedEventArgs e)
+{
+    OperationResult result = _taskService.LoadTasks();
+    if (!result.IsSuccess)
+    {
+        MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+}
+```
+
+```csharp
+/// <inheritdoc/>
+public OperationResult LoadTasks()
+{
+    if (!File.Exists(path))
+    {
+        File.WriteAllText(path, "[]");
+    }
+
+    string json = File.ReadAllText(path);
+
+    ObservableCollection<TaskItem>? tasks = JsonSerializer.Deserialize<ObservableCollection<TaskItem>>(json);
+    if (tasks is null)
+    {
+        return OperationResult.Failure("Tasks could not be loaded from file.");
+    }
+
+    Tasks.Clear();
+    foreach (TaskItem task in tasks)
+    {
+        Tasks.Add(task);
+    }
+
+    return OperationResult.Success();
+}
+```
+
+
