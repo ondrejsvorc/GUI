@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
-using System.Web;
 
 namespace TodoListWpf;
 
@@ -72,10 +71,12 @@ public class TaskService(string path = "tasks.json") : ITaskService
         {
             return OperationResult.Failure("Task cannot be null.");
         }
+
         if (!Tasks.Contains(task))
         {
             return OperationResult.Failure("Task not found.");
         }
+
         Tasks.Remove(task);
         return OperationResult.Success();
     }

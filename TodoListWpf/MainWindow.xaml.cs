@@ -1,4 +1,4 @@
-﻿ using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace TodoListWpf;
@@ -69,8 +69,6 @@ public partial class MainWindow : Window
     /// </summary>
     private void DeleteTask_Click(object sender, RoutedEventArgs e)
     {
-        
-
         if (dataGridTasks.SelectedItem is not TaskItem task)
         {
             MessageBox.Show("Select task to delete.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -82,9 +80,8 @@ public partial class MainWindow : Window
         {
             MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
+
         textBoxTask.Clear();
-
-
     }
 
     /// <summary>
@@ -109,7 +106,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void SaveTasks_Click(object sender, RoutedEventArgs e)
     {
-        OperationResult result =_taskService.SaveTasks();
+        OperationResult result = _taskService.SaveTasks();
         if (!result.IsSuccess)
         {
             MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
