@@ -55,7 +55,7 @@ Tvoří základní prostor, na který budeme postupně přídavat naše další 
 - **`FontFamily`** - font písma na základním okně a všech jeho prvcích.
 - **`FontSize`** - velikost písma/fontu.
 - **`Foreground`** - barva textu písma v hexadecimáním zápisu. "HorizontalAlignment" - zarovnání okna aplikace na uživatelské obrazovce.
-```
+```xaml
 <Window
     x:Class="TodoListWpf.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -104,7 +104,7 @@ Tabulka ve které vypíšeme seznam úkolů.
 - **`BorderBrush`** - Barva ohraničení tabulky.
 - **`BorderThickness`** - Šířka ohraničení tabulky.
 - **`SelectionChanged`** - Je potřeba nastavit metodu, která bude obsluhovat případ, kdy uživatel klikne na jeden z řádků. Pokud není vybrán řádek, hodnota je null. Tuto metodu budemem programovat později.
-```
+```xaml
 <DataGrid
     x:Name="dataGridTasks"
     Grid.Row="0"
@@ -126,7 +126,7 @@ Tabulka ve které vypíšeme seznam úkolů.
 - **`Style.Triggers`** - Spouštěč stylu. Mezi tagy můžeme definovat jednotlivé spoušteče. Například
 pokud vlastnost `IsSelected` na buňce DataGridu má hodnotu `true` (je označena) tak se právě díky spouštěči nastaví barva ohraničení na žlutou.
 
-```
+```xaml
 <DataGrid.Resources>
     <Style TargetType="DataGridColumnHeader">
         <Setter Property="Background" Value="#3E3E42"/>
@@ -161,7 +161,7 @@ pokud vlastnost `IsSelected` na buňce DataGridu má hodnotu `true` (je označen
 - `Type(string)`
 - `Done(CheckBox, resp. boolean + null)`
   DataGrid pomocí **binding** o seznamu objektů `TaskItem` ví a automicky je rozřadí právě podle **?header== atribut**.
-```
+```xaml
 <DataGrid.Columns>
     <!-- Sloupec pro název úkolu -->
     <DataGridTextColumn
@@ -193,7 +193,7 @@ Podobně jako **Grid** slouží k pozicování. Je jednodimenzionální, řadí 
 - **`ComboBoxItem`** - Prvky comboboxu lze nadefinat přímo v XAMLu.
     -  My tuhle možnost nevyužijeme, protože naše položky se načtou pomocí výčtového typu `TaskType`, který je zdrojem těchto dat (naprogramujeme později).
 - **`CheckBox`** - zaškrtávací políčko.
-```
+```xaml
 <!--Tento kód vložte za </DataGrid> -->
 <StackPanel
     Grid.Row="1"
@@ -247,7 +247,7 @@ Podobně jako **Grid** slouží k pozicování. Je jednodimenzionální, řadí 
 - **`Content`** - Co bude na tlačtku napsáno.
 - **`Click`** - Jaký event vyvolá zmáčknutí tlačítka.
 - **`Cursor`** - Na jakou ikonu se změní ukazatel myši po najetí na tlačítko.
-```
+```xaml
 <!-- Panel pro tlačítka (přidat/aktualizovat/smazat úkol) -->
 <StackPanel
     Orientation="Horizontal"
@@ -435,7 +435,7 @@ Poté si vytvoříme potřebný **typ** `public enum TaskType`, který má přir
 ### Co je to enum?
 **Enum** je hodnotový **výčtový typ**. Tento výčtový typ používáme k reprezentaci **volby z množiny vzájemně se vylučujících hodnot nebo jako kombinaci voleb**. Hodnoty jsou defaultně přirazovány k intigerům začínaje `0`, avšak toto nastavení jde změnit.
     - pro více detailů: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/enum
-```
+```csharp
 namespace TodoListWpf;
 
 /// <summary>
@@ -460,7 +460,7 @@ Soubor bude obsahovat:
 - `record OperationResult`
 `ITaskService` není přímo nutný interface, ale pomůže nám v ujasnění logiky a metod potřebných k fungovaní aplikace. Metody `ITaskService` nám vrací hodnoty typu `OperationResult`, kvůli ověřovaní zda operace proběhly úspěšně nebo ne.
 Typ `OperationResult` naprogramujeme níže.
-```
+```csharp
 using System.Collections.ObjectModel;
 
 namespace TodoListWpf;
@@ -504,7 +504,7 @@ Pomocí metod
 - `Success` vracející hodnotu `True` a **ErrorMessage** jakožto `null`
 - `Failure` vracející hodnotu `False` a **ErrorMessage** jakožto `string`
  Metody se volají na základě `if` statementů níže v kódu. Obsah ErrorMessage se definuje pro **jednotlivé případy** také na základě `if` statementů.
-```
+```csharp
 /// <summary>
 /// Reprezentuje výsledek operace, např. při přidávání, aktualizaci či mazání úkolu.
 /// Obsahuje informaci o tom, zda operace proběhla úspěšně, a případnou chybovou zprávu, pokud došlo k selhání.
@@ -532,7 +532,7 @@ Jelikož naše aplikace bude umět **zapisovat/načítat úkoly do/ze souboru**,
 - pojmenovat
 - definovat k němu cestu
  Samotná třída `TaskService` si bude sama držet **kolekci** úkolů pro jejich přímou manipulaci v aplikaci.
-```
+```csharp
 /// <summary>
 /// Služba pro správu úkolů.
 /// </summary>
@@ -584,7 +584,7 @@ Poslední krok při inicializici okna je nastavení defaultní hodnoty ComboBoxu
 Kromě funkcí, které má `_taskService` definované (a zároveň které máme definované jako UI v XAML souboru) musíme naprogramovat i metodu `DataGridTasks_SelectionChanged()`.
 - Metoda byla nastavená jako **event handler při tvorbě XAML kódu**
 - Spustí při **kliknutí** uživatele na **jeden z řádku DataGridu**
-```
+```csharp
 using System.Windows;
 using System.Windows.Controls;
 
@@ -669,7 +669,7 @@ Začneme s nejzákladnější metodou.
 - zkusit proměnit nasbíraná data na objekt `TaskItem` pomocí `_taskService.AddTask(title, type, isDone)` a výsledek operace uložit do proměnné `result`
 Třída `TaskItem` **vyžaduje** `boolean` hodnotu, avšak hodnota z CheckBoxu může být i `null`. Přetypování provedeme **porovnáním uživatelského vstupu s hodnotou `True`**.
 
-```
+```csharp
     string title = textBoxTask.Text.Trim();
     TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
     bool isDone = checkBoxIsDone.IsChecked == true;
@@ -683,7 +683,7 @@ Třída `TaskItem` **vyžaduje** `boolean` hodnotu, avšak hodnota z CheckBoxu m
        - objekt `TaskItem` se stejným `task.Title` a `task.Type` již existuje v kolekci `TaskService.Tasks `
 - Pokud nechtěný případ nenastane, lze data proměnit v nový objekt třídy `TaskItem`, přidat jej do kolekce `TaskService.Tasks` a vrátit hodnotu `OperationResult.Success()`
 
-```
+```csharp
  public OperationResult AddTask(string title, TaskType type, bool isDone)
  {
      if (string.IsNullOrEmpty(title))
@@ -709,7 +709,7 @@ Třída `TaskItem` **vyžaduje** `boolean` hodnotu, avšak hodnota z CheckBoxu m
 - Na základě `result` se ne/zobrazí ErrorMessage
 - Pomocí metody `Clear()` vymažeme TextBoxTask, aby byl připraven pro další uživatelský vstup
 
-```
+```csharp
 if (!result.IsSuccess)
 {
     MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -726,7 +726,7 @@ Slíbená metoda. Soubor `MainWindow.xaml.cs`, metoda `private void DataGridTask
 3. Rozřazení jednotlivých hodnot do **příslušných atributů**
 
 
-```
+```csharp
 private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEventArgs e)
 {
     if (dataGridTasks.SelectedItem is null)
@@ -748,7 +748,7 @@ private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEvent
            - jestli objekt **není** typu `TaskItem`, tak zobrazíme příslušnou zprávu pomocí MessageBox.Show() a z funkce vystoupíme pomocí `return;`
    - Pokud tento případ **nenastane**, můžeme přetypovat a uložit uživatelské vstupy do **příslušných proměnných** (podobně jako v metodě AddTask_Click).
    - Tyto data zkusíme proměnit v aktualizovaný úkol pomocí  `_taskService.UpdateTask(task, title, type, isDone)` a výsledek operace uložit do přoměnné `result`
-```
+```csharp
 if (dataGridTasks.SelectedItem is not TaskItem task)
 {
     MessageBox.Show("Select task to update.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -770,7 +770,7 @@ OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
              - **pokud hledaní indexu (`Tasks.IndexOf(task)`) objektu vrátí `-1`, objekt neexistuje**
    - **Až když nenastává žádný z nechtěných případů**, tak můžeme v kolekci `TaskService.Tasks` změnit stávající objekt `TaskItem` na nový objekt `TaskItem` **s novými hodnotami ale stejným indexem** a vrátit `OperationResult.Success()`
 
-```
+```csharp
  public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)
  {
      if (task is null)
@@ -805,7 +805,7 @@ OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
    - na základě `result` se ne/zobrazí ErrorMessage
    - pomocí metody `Clear()` vymažeme TextBoxTask, aby byl připraven pro další uživatelský vstup
 
-```
+```csharp
 if (!result.IsSuccess)
 {
     MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -818,7 +818,7 @@ textBoxTask.Clear();
            - jestli objekt **je** typu `TaskItem`, tak se do proměnné uloží pomocí `TaskItem task`
            - jestli objekt **není** typu `TaskItem`, tak zobrazíme příslušnou zprávu pomocí `MessageBox.Show()` a z funkce vystoupíme pomocí `return;`
 - objekt `TaskItem` v proměnné `task`  se pokusíme vymazat metodou - `_taskService.DeleteTask(task)` a výsledek uložíme do proměnné `result`
-```
+```csharp
  if (dataGridTasks.SelectedItem is not TaskItem task)
  {
      MessageBox.Show("Select task to delete.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -833,7 +833,7 @@ textBoxTask.Clear();
         - není obsažen v kolekci `TaskService.Tasks`
 -pokud je objekt `TaskItem` v pořádku, můžeme jej vymazat z kolekce `TaskService.Tasks` pomocí `Tasks.Remove(task)` a vrátit `OperationResult.Succes()`
 
-```
+```csharp
 public OperationResult DeleteTask(TaskItem task)
 {
     if (task is null)
@@ -854,10 +854,90 @@ public OperationResult DeleteTask(TaskItem task)
 - na základě `result` se ne/zobrazí ErrorMessage
 - pomocí metody `Clear()` vymažeme TextBoxTask, aby byl připraven pro další uživatelský vstup
 
-```
+```csharp
 if (!result.IsSuccess)
 {
     MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
 }
 textBoxTask.Clear();
+```
+
+### Uložení úkolů
+Tato funkcionalita uloží aktuální úkoly do souboru serializací do formátu JSON.
+
+**Obslužná metoda v MainWindow.xaml.cs:**
+```csharp
+/// <summary>
+/// Uloží úkoly do souboru.
+/// </summary>
+private void SaveTasks_Click(object sender, RoutedEventArgs e)
+{
+    OperationResult result = _taskService.SaveTasks();
+    if (!result.IsSuccess)
+    {
+        MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+}
+```
+
+```csharp
+/// <inheritdoc/>
+public OperationResult SaveTasks()
+{
+    try
+    {
+        string json = JsonSerializer.Serialize(Tasks, new JsonSerializerOptions() { WriteIndented = true });
+        File.WriteAllText(path, json);
+    }
+    catch
+    {
+        return OperationResult.Failure("Tasks could not be saved to file.");
+    }
+
+    return OperationResult.Success();
+}
+```
+
+### Načtení úkolů
+Tato funkcionalita načte úkoly ze souboru. Pokud soubor neexistuje, je vytvořen prázdný soubor. JSON data jsou následně deserializována do kolekce úkolů.
+
+```csharp
+/// <summary>
+/// Načte úkoly ze souboru.
+/// </summary>
+private void LoadTasks_Click(object sender, RoutedEventArgs e)
+{
+    OperationResult result = _taskService.LoadTasks();
+    if (!result.IsSuccess)
+    {
+        MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+}
+```
+
+```csharp
+/// <inheritdoc/>
+public OperationResult LoadTasks()
+{
+    if (!File.Exists(path))
+    {
+        File.WriteAllText(path, "[]");
+    }
+
+    string json = File.ReadAllText(path);
+
+    ObservableCollection<TaskItem>? tasks = JsonSerializer.Deserialize<ObservableCollection<TaskItem>>(json);
+    if (tasks is null)
+    {
+        return OperationResult.Failure("Tasks could not be loaded from file.");
+    }
+
+    Tasks.Clear();
+    foreach (TaskItem task in tasks)
+    {
+        Tasks.Add(task);
+    }
+
+    return OperationResult.Success();
+}
 ```
