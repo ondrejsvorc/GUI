@@ -1020,9 +1020,9 @@ Ve WinForms se Datagrid neaktualizuje s daty automaticky, proto je nutné tuto f
 ```
 ### Add Task
 
-Pro zinializovaný kód tlačítka pro funkci aplikace Add Task bude vypadat podobně, avšak je zde pár změn.
+Zinializovaný kód tlačítka pro funkci aplikace Add Task bude vypadat podobně, avšak je zde pár změn.
 - Není potřeba přetypovat hodnotu CheckBoxu
-- Po operaci je potřeba aktualizovat RefreshDataGrid().
+- Po operaci je potřeba aktualizovat `RefreshDataGrid()`.
 
 
 ```
