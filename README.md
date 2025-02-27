@@ -428,13 +428,13 @@ Vytvoříme typ `public record TaskItem` s potřebnými vlastnostmi
 - `Type(TaskType)` - představuje čeho se náš úkol týká (typ `enum TaskType` naprogramujeme níže)
 - `IsDone(Boolean)` - defaultně říká, že úkol ještě hotový není
 ### Co je to record?
-**Record** může být v C# považován za třídu, ale jde spíše o **strukturovaný typ** určený primárně pro ukládání neměnných dat
-      - pro více detailů: https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/records
+**Record** může být v C# považován za třídu, ale jde spíše o **strukturovaný typ** určený primárně pro ukládání neměnných dat.
+   - pro více detailů: https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/records
 ### Definování typu `enum TaskType`:
 Poté si vytvoříme potřebný **typ** `public enum TaskType`, který má přirazené pojmenované položky k celým číslům.
 ### Co je to enum?
 **Enum** je hodnotový **výčtový typ**. Tento výčtový typ používáme k reprezentaci **volby z množiny vzájemně se vylučujících hodnot nebo jako kombinaci voleb**. Hodnoty jsou defaultně přirazovány k intigerům začínaje `0`, avšak toto nastavení jde změnit.
-    - pro více detailů: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/enum
+   - pro více detailů: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/enum
 ```csharp
 namespace TodoListWpf;
 
@@ -663,10 +663,10 @@ public partial class MainWindow : Window
 ### Add Task
 Začneme s nejzákladnější metodou.
 1. Soubor `MainWindow.xaml.cs`, metoda `private void AddTask_Click(object sender, RoutedEventArgs e)`
-- Získaní dat z **uživatelského rozhraní, přetypování a rozřazení do příslušných proměnných**
-       - Textbox
-       - ComboBox
-       - CheckBox
+- Získaní dat z **uživatelského rozhraní, přetypování a rozřazení do příslušných proměnných**.
+   - Textbox
+   - ComboBox
+   - CheckBox
 - zkusit proměnit nasbíraná data na objekt `TaskItem` pomocí `_taskService.AddTask(title, type, isDone)` a výsledek operace uložit do proměnné `result`
 Třída `TaskItem` **vyžaduje** `boolean` hodnotu, avšak hodnota z CheckBoxu může být i `null`. Přetypování provedeme **porovnáním uživatelského vstupu s hodnotou `True`**.
 
@@ -679,10 +679,10 @@ Třída `TaskItem` **vyžaduje** `boolean` hodnotu, avšak hodnota z CheckBoxu m
 ```
 
 2. Soubor `TaskService.cs`, třída `TaskService`, metoda `public OperationResult AddTask(string title, TaskType type, bool isDone)`
-- Ošetření nechtěných případů `if` statemnty a vrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage
-       - `title` je neplatný
-       - objekt `TaskItem` se stejným `task.Title` a `task.Type` již existuje v kolekci `TaskService.Tasks `
-- Pokud nechtěný případ nenastane, lze data proměnit v nový objekt třídy `TaskItem`, přidat jej do kolekce `TaskService.Tasks` a vrátit hodnotu `OperationResult.Success()`
+- Ošetření nechtěných případů `if` statemnty a vrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage.
+   - `title` je neplatný
+   - objekt `TaskItem` se stejným `task.Title` a `task.Type` již existuje v kolekci `TaskService.Tasks `
+- Pokud nechtěný případ nenastane, lze data proměnit v nový objekt třídy `TaskItem`, přidat jej do kolekce `TaskService.Tasks` a vrátit hodnotu `OperationResult.Success()`.
 
 ```csharp
  public OperationResult AddTask(string title, TaskType type, bool isDone)
@@ -745,8 +745,8 @@ private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEvent
 ### Update task
 1.Soubor `MainWindow.xaml.cs`, metoda `private void UpdateTask_Click(object sender, RoutedEventArgs e)`
    - Pomocí `if` statementu ošetříme případ **kdy objekt k aktualizaci není `TaskItem`** a zároveň si v něm zkusíme **uložit objekt do proměnné `task`**
-           - jestli objekt **je** typu `TaskItem`, tak se do proměnné uloží pomocí `TaskItem task`
-           - jestli objekt **není** typu `TaskItem`, tak zobrazíme příslušnou zprávu pomocí MessageBox.Show() a z funkce vystoupíme pomocí `return;`
+     - jestli objekt **je** typu `TaskItem`, tak se do proměnné uloží pomocí `TaskItem task`
+     - jestli objekt **není** typu `TaskItem`, tak zobrazíme příslušnou zprávu pomocí MessageBox.Show() a z funkce vystoupíme pomocí `return;`
    - Pokud tento případ **nenastane**, můžeme přetypovat a uložit uživatelské vstupy do **příslušných proměnných** (podobně jako v metodě AddTask_Click).
    - Tyto data zkusíme proměnit v aktualizovaný úkol pomocí  `_taskService.UpdateTask(task, title, type, isDone)` a výsledek operace uložit do přoměnné `result`
 ```csharp
@@ -764,11 +764,11 @@ OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
 ```
 2. Souboru `TaskService.cs`, třída `TaskService`, metoda  `public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)`
    - Ošetření nechtěných případů `if` statemanty a vrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage
-       - objekt je `null`
-       - `title` je neplatný
-       - objekt `TaskItem` se stejným `task.Title` a `task.Type` již existuje v kolekci `TaskService.Tasks `
-       - Jelikož `TaskItem` objekty jsou **indexovány**, tak k nim můžeme lehčeji přistupovat a zjišťovat, zda objekty opravdu existují
-             - **pokud hledaní indexu (`Tasks.IndexOf(task)`) objektu vrátí `-1`, objekt neexistuje**
+    - objekt je `null`
+    - `title` je neplatný
+    - objekt `TaskItem` se stejným `task.Title` a `task.Type` již existuje v kolekci `TaskService.Tasks `
+     - Jelikož `TaskItem` objekty jsou **indexovány**, tak k nim můžeme lehčeji přistupovat a zjišťovat, zda objekty opravdu existují
+       - **pokud hledaní indexu (`Tasks.IndexOf(task)`) objektu vrátí `-1`, objekt neexistuje**
    - **Až když nenastává žádný z nechtěných případů**, tak můžeme v kolekci `TaskService.Tasks` změnit stávající objekt `TaskItem` na nový objekt `TaskItem` **s novými hodnotami ale stejným indexem** a vrátit `OperationResult.Success()`
 
 ```csharp
@@ -816,8 +816,8 @@ textBoxTask.Clear();
 ### Delete Task
 1. Soubor `MainWindow.xaml.cs` , metoda `private void DeleteTask_Click(object sender, RoutedEventArgs e)`
 - Pomocí `if` statementu ošetříme případ **kdy zvolený objekt k smazání není `TaskItem`** a zároveň si v něm zkusíme **uložit objekt do proměnné `task`**
-           - jestli objekt **je** typu `TaskItem`, tak se do proměnné uloží pomocí `TaskItem task`
-           - jestli objekt **není** typu `TaskItem`, tak zobrazíme příslušnou zprávu pomocí `MessageBox.Show()` a z funkce vystoupíme pomocí `return;`
+  - jestli objekt **je** typu `TaskItem`, tak se do proměnné uloží pomocí `TaskItem task`
+  - jestli objekt **není** typu `TaskItem`, tak zobrazíme příslušnou zprávu pomocí `MessageBox.Show()` a z funkce vystoupíme pomocí `return;`
 - objekt `TaskItem` v proměnné `task`  se pokusíme vymazat metodou - `_taskService.DeleteTask(task)` a výsledek uložíme do proměnné `result`
 ```csharp
  if (dataGridTasks.SelectedItem is not TaskItem task)
@@ -830,8 +830,8 @@ textBoxTask.Clear();
 ```
 2. Soubor `TaskService.cs`, třída `TaskService` , metoda `public OperationResult DeleteTask(TaskItem task)`
 -ošetření nechtěnných případů `if` statementy a navrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage, pokud objekt `TaskItem` v proměnné `task`:
-        - je `null`
-        - není obsažen v kolekci `TaskService.Tasks`
+ - je `null`
+ - není obsažen v kolekci `TaskService.Tasks`
 -pokud je objekt `TaskItem` v pořádku, můžeme jej vymazat z kolekce `TaskService.Tasks` pomocí `Tasks.Remove(task)` a vrátit `OperationResult.Succes()`
 
 ```csharp
