@@ -828,11 +828,11 @@ textBoxTask.Clear();
 
  OperationResult result = _taskService.DeleteTask(task);
 ```
-2. Soubor `TaskService.cs`, třída `TaskService` , metoda `public OperationResult DeleteTask(TaskItem task)`
--ošetření nechtěnných případů `if` statementy a navrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage, pokud objekt `TaskItem` v proměnné `task`:
+2. Soubor `TaskService.cs`, třída `TaskService` , metoda `public OperationResult DeleteTask(TaskItem task)` 
+- ošetření nechtěnných případů `if` statementy a navrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage, pokud objekt `TaskItem` v proměnné `task`:
     - je `null`
     - není obsažen v kolekci `TaskService.Tasks`
--pokud je objekt `TaskItem` v pořádku, můžeme jej vymazat z kolekce `TaskService.Tasks` pomocí `Tasks.Remove(task)` a vrátit `OperationResult.Succes()`
+- pokud je objekt `TaskItem` v pořádku, můžeme jej vymazat z kolekce `TaskService.Tasks` pomocí `Tasks.Remove(task)` a vrátit `OperationResult.Succes()`
 
 ```csharp
 public OperationResult DeleteTask(TaskItem task)
