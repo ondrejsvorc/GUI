@@ -744,11 +744,11 @@ private void DataGridTasks_SelectionChanged(object sender, SelectionChangedEvent
 ```
 ### Update task
 1.Soubor `MainWindow.xaml.cs`, metoda `private void UpdateTask_Click(object sender, RoutedEventArgs e)`
-   - Pomocí `if` statementu ošetříme případ **kdy objekt k aktualizaci není `TaskItem`** a zároveň si v něm zkusíme **uložit objekt do proměnné `task`**
-     - jestli objekt **je** typu `TaskItem`, tak se do proměnné uloží pomocí `TaskItem task`
-     - jestli objekt **není** typu `TaskItem`, tak zobrazíme příslušnou zprávu pomocí MessageBox.Show() a z funkce vystoupíme pomocí `return;`
-   - Pokud tento případ **nenastane**, můžeme přetypovat a uložit uživatelské vstupy do **příslušných proměnných** (podobně jako v metodě AddTask_Click).
-   - Tyto data zkusíme proměnit v aktualizovaný úkol pomocí  `_taskService.UpdateTask(task, title, type, isDone)` a výsledek operace uložit do přoměnné `result`
+- Pomocí `if` statementu ošetříme případ **kdy objekt k aktualizaci není `TaskItem`** a zároveň si v něm zkusíme **uložit objekt do proměnné `task`**
+    - jestli objekt **je** typu `TaskItem`, tak se do proměnné uloží pomocí `TaskItem task`
+    - jestli objekt **není** typu `TaskItem`, tak zobrazíme příslušnou zprávu pomocí MessageBox.Show() a z funkce vystoupíme pomocí `return;`
+- Pokud tento případ **nenastane**, můžeme přetypovat a uložit uživatelské vstupy do **příslušných proměnných** (podobně jako v metodě AddTask_Click).
+- Tyto data zkusíme proměnit v aktualizovaný úkol pomocí  `_taskService.UpdateTask(task, title, type, isDone)` a výsledek operace uložit do přoměnné `result`
 ```csharp
 if (dataGridTasks.SelectedItem is not TaskItem task)
 {
@@ -762,14 +762,14 @@ bool isDone = checkBoxIsDone.IsChecked == true;
 
 OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
 ```
-2. Souboru `TaskService.cs`, třída `TaskService`, metoda  `public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)`
-   - Ošetření nechtěných případů `if` statemanty a vrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage
+2. Soubor `TaskService.cs`, třída `TaskService`, metoda  `public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)`
+- Ošetření nechtěných případů `if` statemanty a vrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage
     - objekt je `null`
     - `title` je neplatný
     - objekt `TaskItem` se stejným `task.Title` a `task.Type` již existuje v kolekci `TaskService.Tasks `
-     - Jelikož `TaskItem` objekty jsou **indexovány**, tak k nim můžeme lehčeji přistupovat a zjišťovat, zda objekty opravdu existují
-       - **pokud hledaní indexu (`Tasks.IndexOf(task)`) objektu vrátí `-1`, objekt neexistuje**
-   - **Až když nenastává žádný z nechtěných případů**, tak můžeme v kolekci `TaskService.Tasks` změnit stávající objekt `TaskItem` na nový objekt `TaskItem` **s novými hodnotami ale stejným indexem** a vrátit `OperationResult.Success()`
+        - Jelikož `TaskItem` objekty jsou **indexovány**, tak k nim můžeme lehčeji přistupovat a zjišťovat, zda objekty opravdu existují
+        - **pokud hledaní indexu (`Tasks.IndexOf(task)`) objektu vrátí `-1`, objekt neexistuje**
+- **Až když nenastává žádný z nechtěných případů**, tak můžeme v kolekci `TaskService.Tasks` změnit stávající objekt `TaskItem` na nový objekt `TaskItem` **s novými hodnotami ale stejným indexem** a vrátit `OperationResult.Success()`
 
 ```csharp
  public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)
@@ -802,9 +802,9 @@ OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
      return OperationResult.Success();
  }
 ```
-3.  Souboru `MainWindow.xaml.cs`, metoda `private void UpdateTask_Click(object sender, RoutedEventArgs e)`.
-   - na základě `result` se ne/zobrazí ErrorMessage
-   - pomocí metody `Clear()` vymažeme TextBoxTask, aby byl připraven pro další uživatelský vstup
+3.  Soubor `MainWindow.xaml.cs`, metoda `private void UpdateTask_Click(object sender, RoutedEventArgs e)`.
+- na základě `result` se ne/zobrazí ErrorMessage
+- pomocí metody `Clear()` vymažeme TextBoxTask, aby byl připraven pro další uživatelský vstup
 
 ```csharp
 if (!result.IsSuccess)
@@ -830,8 +830,8 @@ textBoxTask.Clear();
 ```
 2. Soubor `TaskService.cs`, třída `TaskService` , metoda `public OperationResult DeleteTask(TaskItem task)`
 -ošetření nechtěnných případů `if` statementy a navrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage, pokud objekt `TaskItem` v proměnné `task`:
- - je `null`
- - není obsažen v kolekci `TaskService.Tasks`
+    - je `null`
+    - není obsažen v kolekci `TaskService.Tasks`
 -pokud je objekt `TaskItem` v pořádku, můžeme jej vymazat z kolekce `TaskService.Tasks` pomocí `Tasks.Remove(task)` a vrátit `OperationResult.Succes()`
 
 ```csharp
