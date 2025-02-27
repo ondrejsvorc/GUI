@@ -48,7 +48,7 @@ flowchart TD
 Dbejte na odsazení. "<" - začátek tagu, "/>" anebo "</"- ukončení tagu
 
 ### Window
-Tvoří základní prostor, na který budeme postupně přídavat naše další prvky (vnořovat). Jde o základ, bez kterého by se desktopová aplikace nezobrazila.
+Tvoří základní prostor, na který budeme postupně přídavat naše další prvky (vnořovat). Jde o základ, bez kterého by se desktopová aplikace nezobrazila. Kód se nachází v souboru `MainWindow.xaml`
 - **`x:Class`** zde se nachazi  odkaz na třídu, se kterou je XAML soubor spojený, v našem případe jde o třídu MainWindow ve jmenném prostoru TodoListWpf.
 - **`xmlns, xmlns: x`**– informace o XAML schéma. URL odkazy poskytují zdroj definic tagů. Bez nich náš program XAML tagy nerozezná. URL odkazy se mohou měnit v případě užití jiných knihoven.
 - **`Title`** – nadpis aplikace. "Height, Width" – šířka a výška okna. "Background" - Barva základního okna v hexadecimálním zápisu.
@@ -454,6 +454,7 @@ public enum TaskType { Work = 0, University = 1, Personal = 2, Other = 3 }
 ```
 
 Nyní vytvoříme **nový soubor** se jménem **`TaskService.cs`**.
+Dbejte na užívané knihovny.
 Soubor bude obsahovat:
 - `interface ITaskService`
 - `class TaskService : ITaskService`
@@ -462,8 +463,8 @@ Soubor bude obsahovat:
 Typ `OperationResult` naprogramujeme níže.
 ```csharp
 using System.Collections.ObjectModel;
-
-namespace TodoListWpf;
+using System.IO;
+using System.Text.Json;
 
 public interface ITaskService
 {
@@ -941,3 +942,185 @@ public OperationResult LoadTasks()
     return OperationResult.Success();
 }
 ```
+# Tvorba ToDOList ve WiForms
+Tvorba je značně jednodušší. Logika programu bude velmi podobná, ve většíně případech stejná. Grafické uživatelské rozhraní lze vytvořit v souboru `Form1.cs[Návrh]` .
+## Tvorba GUI
+Při otevření `Form1.cs[Návrh]` je na levé straně  **Panel nástrojů**.
+1. Ze složky **Data** natáhneme prvek **DataGridView** na okno **Form1** tak, aby jeho poloha odpovídala poloze **DataGrid** v předochozí aplikaci.
+![Visual Studio Setup](images/vyber1.png)
+2. Ze složky **Běžné ovládací prvky** nataháme na okno položky **TextBox, ComboBox, CheckBox a Button** tak, aby odpovídali přechozí aplikaci.
+![Visual Studio Setup](images/vyber0.png)
+3. Pro zjednodušení přejmenujeme uživatelské prvky tak, jak chceme aby se jmenovali jejich event handleři a přepíšeme text, který se uživateli zobrazí na prvku.
+   - po kliknutí na uživatelský prvek je na levé straně dole panel **Vlastnosti**, tam budeme přejmenovávat.
+   - u DataGridu to bude náročnější, metoda SelectionChanged se dá nastavit ve událostech, bude ukázáno během hodiny. Screenshoty námi užitých vlastností a událostí Datagridu jsou ve složce images
+![Visual Studio Setup](images/Name0.png)
+![Visual Studio Setup](images/Name1.png)
+4. Kódy pro interakci s těmito uživatelskými prvky se zinicialiují v souboru `Form1.cs` dvojklikem na uživatelský prvek na okně **Form1** v souboru `Form1.cs[Návrh]`.
+
+## Tvorba logiky
+Soubory `TaskService.cs` a `TaskItem.cs` zůustanou nepozměněné. Stačí je vytvořit, obsah z předchozí aplikace zkopírovat a vložit.
+# Logika Form1.cs
+Dbejte `using System.ComponentModel;`.
+Začátek souboru, tvorba objektu `_taskService` třídy `TaskService` a nastavení datových zdrojů bude vypadat následovně
+```
+using System.ComponentModel;
+
+namespace TodoListWinForms;
+
+public partial class Form1 : Form
+{
+    private readonly ITaskService _taskService = new TaskService();
+
+    public Form1()
+    {
+        InitializeComponent();
+
+        // Nastavení datových zdrojů.
+        dataGridTasks.DataSource = new BindingList<TaskItem>(_taskService.Tasks);
+        dataGridTasks.AutoGenerateColumns = false;
+        comboBoxTaskType.DataSource = Enum.GetValues(typeof(TaskType));
+
+        // Nastavení výchozí hodnoty pro ComboBox.
+        comboBoxTaskType.SelectedItem = TaskType.Other;
+    }
+```
+### Funkce DataGridu
+1. `private void RefreshDataGrid()`
+Ve WinForms se Datagrid neaktualizuje s daty automaticky, proto je nutné tuto funkci nastavit. Bude při volána při těměř všech operacích.
+```
+ private void RefreshDataGrid()
+ {
+     dataGridTasks.DataSource = new BindingList<TaskItem>(_taskService.Tasks);
+ }
+```
+2.  `private void DataGridTasks_SelectionChanged(object sender, EventArgs e)`
+   - ošetření případu kdy je index zvoleného řádku větší než počet objektů v kolekci `_taskService.Tasks`
+   - ošetření případu kdy zvolený objekt není objektem `TaskItem`
+         - v opačném případě se objekt `TaskItem` uloží do proměnné `selectedTask`
+   - `?` za CurrentRow ošetřují případy kdy zvolený objekt je null
+   - roztřídění uživatelských vstupů do příslušných atributů objektu `TaskItem`
+
+```
+    private void DataGridTasks_SelectionChanged(object sender, EventArgs e)
+    {
+        if (dataGridTasks.CurrentRow?.Index >= _taskService.Tasks.Count)
+        {
+            return;
+        }
+
+        if (dataGridTasks.CurrentRow?.DataBoundItem is not TaskItem selectedTask)
+        {
+            return;
+        }
+
+        textBoxTask.Text = selectedTask.Title;
+        comboBoxTaskType.SelectedItem = selectedTask.Type;
+        checkBoxIsDone.Checked = selectedTask.IsDone;
+    }
+```
+### Add Task
+
+Pro zinializovaný kód tlačítka pro funkci aplikace Add Task bude vypadat podobně, avšak je zde pár změn.
+- Není potřeba přetypovat hodnotu CheckBoxu
+- Po operaci je potřeba aktualizovat RefreshDataGrid().
+
+
+```
+ private void AddTask_Click(object sender, EventArgs e)
+ {
+     string title = textBoxTask.Text.Trim();
+     TaskType type = (TaskType)comboBoxTaskType.SelectedItem!;
+     bool isDone = checkBoxIsDone.Checked;
+
+     OperationResult result = _taskService.AddTask(title, type, isDone);
+     if (!result.IsSuccess)
+     {
+         MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+         return;
+     }
+
+     RefreshDataGrid();
+     textBoxTask.Clear();
+ }
+```
+### Update Task
+Pozměněná `if` podmínka a aktualizace DataGridu.
+```
+    private void UpdateTask_Click(object sender, EventArgs e)
+    {
+        if (dataGridTasks.CurrentRow?.DataBoundItem is not TaskItem task)
+        {
+            MessageBox.Show("Select a task to update.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        string title = textBoxTask.Text.Trim();
+        TaskType type = (TaskType)comboBoxTaskType.SelectedItem!;
+        bool isDone = checkBoxIsDone.Checked;
+
+        OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        RefreshDataGrid();
+        textBoxTask.Clear();
+    }
+```
+### Delete Task
+
+Pozměněná `if` podmínka a aktualizace DataGridu.
+```
+    private void DeleteTask_Click(object sender, EventArgs e)
+    {
+        if (dataGridTasks.CurrentRow?.DataBoundItem is not TaskItem task)
+        {
+            MessageBox.Show("Select a task to delete.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        OperationResult result = _taskService.DeleteTask(task);
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        RefreshDataGrid();
+        textBoxTask.Clear();
+    }
+```
+### Save Tasks
+Změna v přidání příkazu `return;`
+
+```
+    private void SaveTasks_Click(object sender, EventArgs e)
+    {
+        OperationResult result = _taskService.SaveTasks();
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+    }
+```
+### Load Tasks
+Změna v aktualizaci DataGridu.
+
+```
+    private void LoadTasks_Click(object sender, EventArgs e)
+    {
+        OperationResult result = _taskService.LoadTasks();
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        RefreshDataGrid();
+    }
+```
+
+
+
