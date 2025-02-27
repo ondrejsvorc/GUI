@@ -1051,3 +1051,243 @@ public OperationResult LoadTasks()
 ```
 
 
+# Creating a To-Do List in WinForms
+Creating the application is significantly simpler. The program logic will be very similar, in most cases identical. The graphical user interface can be created in the `Form1.cs[Design]` file.
+
+## Creating the GUI
+When opening `Form1.cs[Design]`, on the left side, there is the **Toolbox**.
+
+1. From the **Data** folder, drag the **DataGridView** component onto the **Form1** window so that its position matches the **DataGrid** in the previous application.
+   ![Visual Studio Setup](images/vyber1.png)
+2. From the **Common Controls** folder, drag the **TextBox, ComboBox, CheckBox, and Button** components onto the window so that they match the previous application.
+   ![Visual Studio Setup](images/vyber0.png)
+3. To simplify, rename the user interface components as desired for their event handlers and change the displayed text accordingly.
+   - Click on a UI component to access the **Properties** panel at the bottom left for renaming.
+   - For DataGrid, it will be more complex; the SelectionChanged method can be set in the events panel, which will be demonstrated in class. Screenshots of the properties and events used for DataGrid are in the `images` folder.
+   ![Visual Studio Setup](images/Name0.png)
+   ![Visual Studio Setup](images/Name1.png)
+4. Code for interacting with these UI components will be initialized in the `Form1.cs` file by double-clicking the UI component in the **Form1** window inside `Form1.cs[Design]`.
+
+## Implementing Logic
+The `TaskService.cs` and `TaskItem.cs` files remain unchanged. Simply create them and copy-paste the content from the previous application.
+
+# Logic of Form1.cs
+Ensure the inclusion of `using System.ComponentModel;`.
+The beginning of the file, object creation for `_taskService` class `TaskService`, and data source setup should look as follows:
+
+```csharp
+using System.ComponentModel;
+
+namespace TodoListWinForms;
+
+public partial class Form1 : Form
+{
+    private readonly ITaskService _taskService = new TaskService();
+
+    public Form1()
+    {
+        InitializeComponent();
+
+        // Setting up data sources.
+        dataGridTasks.DataSource = new BindingList<TaskItem>(_taskService.Tasks);
+        dataGridTasks.AutoGenerateColumns = false;
+        comboBoxTaskType.DataSource = Enum.GetValues(typeof(TaskType));
+
+        // Setting the default value for ComboBox.
+        comboBoxTaskType.SelectedItem = TaskType.Other;
+    }
+```
+
+# Creating a To-Do List in WinForms
+Creating the application is significantly simpler. The program logic will be very similar, in most cases identical. The graphical user interface can be created in the `Form1.cs[Design]` file.
+
+## Creating the GUI
+When opening `Form1.cs[Design]`, on the left side, there is the **Toolbox**.
+
+1. From the **Data** folder, drag the **DataGridView** component onto the **Form1** window so that its position matches the **DataGrid** in the previous application.
+   ![Visual Studio Setup](images/vyber1.png)
+2. From the **Common Controls** folder, drag the **TextBox, ComboBox, CheckBox, and Button** components onto the window so that they match the previous application.
+   ![Visual Studio Setup](images/vyber0.png)
+3. To simplify, rename the user interface components as desired for their event handlers and change the displayed text accordingly.
+   - Click on a UI component to access the **Properties** panel at the bottom left for renaming.
+   - For DataGrid, it will be more complex; the SelectionChanged method can be set in the events panel, which will be demonstrated in class. Screenshots of the properties and events used for DataGrid are in the `images` folder.
+   ![Visual Studio Setup](images/Name0.png)
+   ![Visual Studio Setup](images/Name1.png)
+4. Code for interacting with these UI components will be initialized in the `Form1.cs` file by double-clicking the UI component in the **Form1** window inside `Form1.cs[Design]`.
+
+## Implementing Logic
+The `TaskService.cs` and `TaskItem.cs` files remain unchanged. Simply create them and copy-paste the content from the previous application.
+
+# Logic of Form1.cs
+Ensure the inclusion of `using System.ComponentModel;`.
+The beginning of the file, object creation for `_taskService` class `TaskService`, and data source setup should look as follows:
+
+```csharp
+using System.ComponentModel;
+
+namespace TodoListWinForms;
+
+public partial class Form1 : Form
+{
+    private readonly ITaskService _taskService = new TaskService();
+
+    public Form1()
+    {
+        InitializeComponent();
+
+        // Setting up data sources.
+        dataGridTasks.DataSource = new BindingList<TaskItem>(_taskService.Tasks);
+        dataGridTasks.AutoGenerateColumns = false;
+        comboBoxTaskType.DataSource = Enum.GetValues(typeof(TaskType));
+
+        // Setting the default value for ComboBox.
+        comboBoxTaskType.SelectedItem = TaskType.Other;
+    }
+```
+
+### DataGrid Functionality
+1. `private void RefreshDataGrid()`
+   - In WinForms, DataGrid does not update automatically with data changes, so this function must be set up. It will be called in almost every operation.
+
+```csharp
+ private void RefreshDataGrid()
+ {
+     dataGridTasks.DataSource = new BindingList<TaskItem>(_taskService.Tasks);
+ }
+```
+
+2. `private void DataGridTasks_SelectionChanged(object sender, EventArgs e)`
+   - Handles cases where the selected row index exceeds the number of objects in `_taskService.Tasks`.
+   - Handles cases where the selected object is not a `TaskItem` object.
+   - If valid, the `TaskItem` object is stored in the `selectedTask` variable.
+   - `?` after `CurrentRow` handles cases where the selected object is `null`.
+   - Distributes user input into the corresponding attributes of the `TaskItem` object.
+
+```csharp
+    private void DataGridTasks_SelectionChanged(object sender, EventArgs e)
+    {
+        if (dataGridTasks.CurrentRow?.Index >= _taskService.Tasks.Count)
+        {
+            return;
+        }
+
+        if (dataGridTasks.CurrentRow?.DataBoundItem is not TaskItem selectedTask)
+        {
+            return;
+        }
+
+        textBoxTask.Text = selectedTask.Title;
+        comboBoxTaskType.SelectedItem = selectedTask.Type;
+        checkBoxIsDone.Checked = selectedTask.IsDone;
+    }
+```
+
+### Add Task
+- The initialized button code for the Add Task function will look similar, but there are a few changes
+- No need to cast the CheckBox value.
+- `RefreshDataGrid()` must be called after the operation.
+
+```csharp
+ private void AddTask_Click(object sender, EventArgs e)
+ {
+     string title = textBoxTask.Text.Trim();
+     TaskType type = (TaskType)comboBoxTaskType.SelectedItem!;
+     bool isDone = checkBoxIsDone.Checked;
+
+     OperationResult result = _taskService.AddTask(title, type, isDone);
+     if (!result.IsSuccess)
+     {
+         MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+         return;
+     }
+
+     RefreshDataGrid();
+     textBoxTask.Clear();
+ }
+```
+
+### Update Task
+Modified `if` condition and DataGrid refresh.
+
+```csharp
+    private void UpdateTask_Click(object sender, EventArgs e)
+    {
+        if (dataGridTasks.CurrentRow?.DataBoundItem is not TaskItem task)
+        {
+            MessageBox.Show("Select a task to update.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        string title = textBoxTask.Text.Trim();
+        TaskType type = (TaskType)comboBoxTaskType.SelectedItem!;
+        bool isDone = checkBoxIsDone.Checked;
+
+        OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        RefreshDataGrid();
+        textBoxTask.Clear();
+    }
+```
+
+### Delete Task
+Modified `if` condition and DataGrid refresh.
+
+```csharp
+    private void DeleteTask_Click(object sender, EventArgs e)
+    {
+        if (dataGridTasks.CurrentRow?.DataBoundItem is not TaskItem task)
+        {
+            MessageBox.Show("Select a task to delete.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        OperationResult result = _taskService.DeleteTask(task);
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        RefreshDataGrid();
+        textBoxTask.Clear();
+    }
+```
+
+### Save Tasks
+Modification includes adding the `return;` statement.
+
+```csharp
+    private void SaveTasks_Click(object sender, EventArgs e)
+    {
+        OperationResult result = _taskService.SaveTasks();
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+    }
+```
+
+### Load Tasks
+Modification in DataGrid refresh.
+
+```csharp
+    private void LoadTasks_Click(object sender, EventArgs e)
+    {
+        OperationResult result = _taskService.LoadTasks();
+        if (!result.IsSuccess)
+        {
+            MessageBox.Show(result.ErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        RefreshDataGrid();
+    }
+```
+
+
+     dataGridTasks.DataSource = new BindingLis
