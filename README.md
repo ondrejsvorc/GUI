@@ -353,6 +353,7 @@ classDiagram
     class OperationResult {
       +IsSuccess : bool
       +ErrorMessage : string
+      -OperationResult(isSuccess: bool, errorMessage: string)
       +Success() : OperationResult
       +Failure(errorMessage: string) : OperationResult
     }
@@ -510,10 +511,20 @@ Pomocí metod
 /// Reprezentuje výsledek operace, např. při přidávání, aktualizaci či mazání úkolu.
 /// Obsahuje informaci o tom, zda operace proběhla úspěšně, a případnou chybovou zprávu, pokud došlo k selhání.
 /// </summary>
-/// <param name="IsSuccess">Indikuje, zda operace byla úspěšná.</param>
-/// <param name="ErrorMessage">Chybová zpráva, pokud operace selhala; jinak null.</param>
-public record OperationResult(bool IsSuccess, string? ErrorMessage)
+public record OperationResult
 {
+    public bool IsSuccess { get; }
+
+    public string? ErrorMessage { get; }
+
+    /// <summary>
+    /// Privátní konstruktor zajišťuje, že v programu existují pouze objekty vytvořené v rámci této třídy.
+    /// Aktuálně existují pouze objekty vytvořené statickými metodami .Success a .Failure, které nelze dále upravovat volajícím kódem.
+    /// </summary>
+    /// <param name="isSuccess">Nastaveno na true v případě úspěchu, na false v případě neúspěchu.</param>
+    /// <param name="errorMessage">Nastaveno na null v případě úspěchu, jinak obsahuje popis chyby.</param>
+    private OperationResult(bool isSuccess, string? errorMessage) => (IsSuccess, ErrorMessage) = (isSuccess, errorMessage);
+
     /// <summary>
     /// Vytvoří a vrátí úspěšný výsledek operace.
     /// </summary>
