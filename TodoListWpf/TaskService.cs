@@ -43,12 +43,14 @@ public class TaskService(string path = "tasks.json") : ITaskService
             return OperationResult.Failure("Title cannot be empty.");
         }
 
-        foreach (TaskItem taskItem in Tasks)
+        if (task.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && task.Type == type && task.IsDone == isDone)
         {
-            if (task.Title.ToLower() == title.ToLower() && task.Type == type)
-            {
-                return OperationResult.Failure("Task with this title already exists.");
-            }
+            return OperationResult.Failure("Task cannot be updated as it was not modified.");
+        }
+
+        if (Tasks.Any(x => x != task && x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type && x.IsDone == isDone))
+        {
+            return OperationResult.Failure("Task with same properties already exists.");
         }
 
         int index = Tasks.IndexOf(task);
