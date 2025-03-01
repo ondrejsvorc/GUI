@@ -168,11 +168,13 @@ public record OperationResult
 
     public string? ErrorMessage { get; }
 
-    private OperationResult(bool isSuccess, string? errorMessage)
-    {
-        IsSuccess = isSuccess;
-        ErrorMessage = errorMessage;
-    }
+    /// <summary>
+    /// Privátní konstruktor zajišťuje, že v programu existují pouze objekty vytvořené v rámci této třídy.
+    /// Aktuálně existují pouze objekty vytvořené statickými metodami .Success a .Failure, které nelze dále upravovat volajícím kódem.
+    /// </summary>
+    /// <param name="isSuccess">Nastaveno na true v případě úspěchu, na false v případě neúspěchu.</param>
+    /// <param name="errorMessage">Nastaveno na null v případě úspěchu, jinak obsahuje popis chyby.</param>
+    private OperationResult(bool isSuccess, string? errorMessage) => (IsSuccess, ErrorMessage) = (isSuccess, errorMessage);
 
     /// <summary>
     /// Vytvoří a vrátí úspěšný výsledek operace.
