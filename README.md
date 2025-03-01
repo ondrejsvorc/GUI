@@ -80,7 +80,7 @@ Grid je neviditelná mřížka, která zabírá celý prostor okna a pomáhá na
 Jelikož naše okno chceme rozdělit na tři horizontální části, tak potřebujeme nadefinovat tři řádky, ve kterých budou naše prvky. Toho dosáhneme pomocí **`RowDefinition`**
       - **1.`RowDefinition`** - `Height="*"`, znamená, že chceme aby výška řádku zabírala 1/n prostoru okna, kde n = počet řádku, v našem případě jedna třetina prostoru.
       - **2. a 3.`RowDefinition`** - `Height = "Auto" `- výška řádku se automaticky přizpůsobí podle obsahu.
-```
+```xaml
 <Grid Margin="10">
     <Grid.RowDefinitions>
         <RowDefinition
@@ -353,6 +353,7 @@ classDiagram
     class OperationResult {
       +IsSuccess : bool
       +ErrorMessage : string
+      -OperationResult(isSuccess: bool, errorMessage: string)
       +Success() : OperationResult
       +Failure(errorMessage: string) : OperationResult
     }
@@ -510,10 +511,20 @@ Pomocí metod
 /// Reprezentuje výsledek operace, např. při přidávání, aktualizaci či mazání úkolu.
 /// Obsahuje informaci o tom, zda operace proběhla úspěšně, a případnou chybovou zprávu, pokud došlo k selhání.
 /// </summary>
-/// <param name="IsSuccess">Indikuje, zda operace byla úspěšná.</param>
-/// <param name="ErrorMessage">Chybová zpráva, pokud operace selhala; jinak null.</param>
-public record OperationResult(bool IsSuccess, string? ErrorMessage)
+public record OperationResult
 {
+    public bool IsSuccess { get; }
+
+    public string? ErrorMessage { get; }
+
+    /// <summary>
+    /// Privátní konstruktor zajišťuje, že v programu existují pouze objekty vytvořené v rámci této třídy.
+    /// Aktuálně existují pouze objekty vytvořené statickými metodami .Success a .Failure, které nelze dále upravovat volajícím kódem.
+    /// </summary>
+    /// <param name="isSuccess">Nastaveno na true v případě úspěchu, na false v případě neúspěchu.</param>
+    /// <param name="errorMessage">Nastaveno na null v případě úspěchu, jinak obsahuje popis chyby.</param>
+    private OperationResult(bool isSuccess, string? errorMessage) => (IsSuccess, ErrorMessage) = (isSuccess, errorMessage);
+
     /// <summary>
     /// Vytvoří a vrátí úspěšný výsledek operace.
     /// </summary>
@@ -962,7 +973,7 @@ Soubory `TaskService.cs` a `TaskItem.cs` zůustanou nepozměněné. Stačí je v
 # Logika Form1.cs
 Dbejte `using System.ComponentModel;`.
 Začátek souboru, tvorba objektu `_taskService` třídy `TaskService` a nastavení datových zdrojů bude vypadat následovně
-```
+```csharp
 using System.ComponentModel;
 
 namespace TodoListWinForms;
@@ -987,7 +998,7 @@ public partial class Form1 : Form
 ### Funkce DataGridu
 1. `private void RefreshDataGrid()`
 Ve WinForms se Datagrid neaktualizuje s daty automaticky, proto je nutné tuto funkci nastavit. Bude při volána při těměř všech operacích.
-```
+```csharp
  private void RefreshDataGrid()
  {
      dataGridTasks.DataSource = new BindingList<TaskItem>(_taskService.Tasks);
@@ -1000,7 +1011,7 @@ Ve WinForms se Datagrid neaktualizuje s daty automaticky, proto je nutné tuto f
    - `?` za CurrentRow ošetřují případy kdy zvolený objekt je null
    - roztřídění uživatelských vstupů do příslušných atributů objektu `TaskItem`
 
-```
+```csharp
     private void DataGridTasks_SelectionChanged(object sender, EventArgs e)
     {
         if (dataGridTasks.CurrentRow?.Index >= _taskService.Tasks.Count)
@@ -1025,7 +1036,7 @@ Zinializovaný kód tlačítka pro funkci aplikace Add Task bude vypadat podobn�
 - Po operaci je potřeba aktualizovat `RefreshDataGrid()`.
 
 
-```
+```csharp
  private void AddTask_Click(object sender, EventArgs e)
  {
      string title = textBoxTask.Text.Trim();
@@ -1045,7 +1056,7 @@ Zinializovaný kód tlačítka pro funkci aplikace Add Task bude vypadat podobn�
 ```
 ### Update Task
 Pozměněná `if` podmínka a aktualizace DataGridu.
-```
+```csharp
     private void UpdateTask_Click(object sender, EventArgs e)
     {
         if (dataGridTasks.CurrentRow?.DataBoundItem is not TaskItem task)
@@ -1072,7 +1083,7 @@ Pozměněná `if` podmínka a aktualizace DataGridu.
 ### Delete Task
 
 Pozměněná `if` podmínka a aktualizace DataGridu.
-```
+```csharp
     private void DeleteTask_Click(object sender, EventArgs e)
     {
         if (dataGridTasks.CurrentRow?.DataBoundItem is not TaskItem task)
@@ -1095,7 +1106,7 @@ Pozměněná `if` podmínka a aktualizace DataGridu.
 ### Save Tasks
 Změna v přidání příkazu `return;`
 
-```
+```csharp
     private void SaveTasks_Click(object sender, EventArgs e)
     {
         OperationResult result = _taskService.SaveTasks();
@@ -1109,7 +1120,7 @@ Změna v přidání příkazu `return;`
 ### Load Tasks
 Změna v aktualizaci DataGridu.
 
-```
+```csharp
     private void LoadTasks_Click(object sender, EventArgs e)
     {
         OperationResult result = _taskService.LoadTasks();
@@ -1121,6 +1132,3 @@ Změna v aktualizaci DataGridu.
         RefreshDataGrid();
     }
 ```
-
-
-
