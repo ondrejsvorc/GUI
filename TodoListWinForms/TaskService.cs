@@ -3,7 +3,9 @@ using System.Text.Json;
 
 namespace TodoListWinForms;
 
-/// <inheritdoc/>
+/// <summary>
+/// Služba pro správu úkolů.
+/// </summary>
 public class TaskService(string path = "tasks.json") : ITaskService
 {
     /// <inheritdoc/>
@@ -17,12 +19,9 @@ public class TaskService(string path = "tasks.json") : ITaskService
             return OperationResult.Failure("Title cannot be empty.");
         }
 
-        foreach (TaskItem task in Tasks)
+        if (Tasks.Any(x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type))
         {
-            if (task.Title.ToLower() == title.ToLower() && task.Type == type)
-            {
-                return OperationResult.Failure("Task with this title already exists.");
-            }
+            return OperationResult.Failure("Task with same title and task type already exists.");
         }
 
         TaskItem taskItem = new TaskItem(Guid.NewGuid(), title, type, isDone);
@@ -43,12 +42,14 @@ public class TaskService(string path = "tasks.json") : ITaskService
             return OperationResult.Failure("Title cannot be empty.");
         }
 
-        foreach (TaskItem taskItem in Tasks)
+        if (task.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && task.Type == type && task.IsDone == isDone)
         {
-            if (task.Title.ToLower() == title.ToLower() && task.Type == type)
-            {
-                return OperationResult.Failure("Task with this title already exists.");
-            }
+            return OperationResult.Failure("Task cannot be updated as it was not modified.");
+        }
+
+        if (Tasks.Any(x => x != task && x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type && x.IsDone == isDone))
+        {
+            return OperationResult.Failure("Task with same properties already exists.");
         }
 
         int index = Tasks.IndexOf(task);
@@ -160,10 +161,18 @@ public interface ITaskService
 /// Reprezentuje výsledek operace, např. při přidávání, aktualizaci či mazání úkolu.
 /// Obsahuje informaci o tom, zda operace proběhla úspěšně, a případnou chybovou zprávu, pokud došlo k selhání.
 /// </summary>
-/// <param name="IsSuccess">Indikuje, zda operace byla úspěšná.</param>
-/// <param name="ErrorMessage">Chybová zpráva, pokud operace selhala; jinak null.</param>
-public record OperationResult(bool IsSuccess, string? ErrorMessage)
+public record OperationResult
 {
+    public bool IsSuccess { get; }
+
+    public string? ErrorMessage { get; }
+
+    private OperationResult(bool isSuccess, string? errorMessage)
+    {
+        IsSuccess = isSuccess;
+        ErrorMessage = errorMessage;
+    }
+
     /// <summary>
     /// Vytvoří a vrátí úspěšný výsledek operace.
     /// </summary>
