@@ -162,10 +162,18 @@ public interface ITaskService
 /// Reprezentuje výsledek operace, např. při přidávání, aktualizaci či mazání úkolu.
 /// Obsahuje informaci o tom, zda operace proběhla úspěšně, a případnou chybovou zprávu, pokud došlo k selhání.
 /// </summary>
-/// <param name="IsSuccess">Indikuje, zda operace byla úspěšná.</param>
-/// <param name="ErrorMessage">Chybová zpráva, pokud operace selhala; jinak null.</param>
-public record OperationResult(bool IsSuccess, string? ErrorMessage)
+public record OperationResult
 {
+    public bool IsSuccess { get; }
+
+    public string? ErrorMessage { get; }
+
+    private OperationResult(bool isSuccess, string? errorMessage)
+    {
+        IsSuccess = isSuccess;
+        ErrorMessage = errorMessage;
+    }
+
     /// <summary>
     /// Vytvoří a vrátí úspěšný výsledek operace.
     /// </summary>
