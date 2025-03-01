@@ -20,12 +20,9 @@ public class TaskService(string path = "tasks.json") : ITaskService
             return OperationResult.Failure("Title cannot be empty.");
         }
 
-        foreach (TaskItem task in Tasks)
+        if (Tasks.Any(x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type))
         {
-            if (task.Title.ToLower() == title.ToLower() && task.Type == type)
-            {
-                return OperationResult.Failure("Task with this title already exists.");
-            }
+            return OperationResult.Failure("Task with same title and task type already exists.");
         }
 
         TaskItem taskItem = new TaskItem(Guid.NewGuid(), title, type, isDone);
