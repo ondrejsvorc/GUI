@@ -682,11 +682,11 @@ Začneme s nejzákladnější metodou.
 Třída `TaskItem` **vyžaduje** `boolean` hodnotu, avšak hodnota z CheckBoxu může být i `null`. Přetypování provedeme **porovnáním uživatelského vstupu s hodnotou `True`**.
 
 ```csharp
-    string title = textBoxTask.Text.Trim();
-    TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
-    bool isDone = checkBoxIsDone.IsChecked == true;
+string title = textBoxTask.Text.Trim();
+TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
+bool isDone = checkBoxIsDone.IsChecked == true;
 
-    OperationResult result = _taskService.AddTask(title, type, isDone);
+OperationResult result = _taskService.AddTask(title, type, isDone);
 ```
 
 2. Soubor `TaskService.cs`, třída `TaskService`, metoda `public OperationResult AddTask(string title, TaskType type, bool isDone)`
