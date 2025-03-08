@@ -543,7 +543,7 @@ Jelikož naše aplikace bude umět **zapisovat/načítat úkoly do/ze souboru**,
 - vytvořit
 - pojmenovat
 - definovat k němu cestu
- Samotná třída `TaskService` si bude sama držet **kolekci** úkolů pro jejich přímou manipulaci v aplikaci.
+ Samotná třída `TaskService` si bude sama držet **kolekci** úkolů( `object` typu `TaskItem`) pro jejich přímou manipulaci v aplikaci.
 ```csharp
 /// <summary>
 /// Služba pro správu úkolů.
@@ -588,7 +588,7 @@ public class TaskService(string path = "tasks.json") : ITaskService
 Otevřeme si soubor `MainWindow.xaml.cs`, kde se zinicializuje uživatelské okno nadefinované v souboru `MainWindow.xaml`.
 Zde budou také naprogramovaní **event handlers** (viz prezentace). Event handlers budou propojeni s metodami v třídě `TaskService`.
 Při vytváření třídy `MainWindow` je potřeba vytvořit **privátní objekt** `_taskService`, jakožto objekt třídy `TaskService`.
-Jeho vytvoření je **nutné** pro **správu úkolů na popředí i pozadí aplikace**, avšak nemusí byt přístupný pro třídy mimo `MainWindow`.
+Jeho vytvoření je **nutné** pro **správu úkolů aplikace**, avšak nemusí byt přístupný pro třídy mimo `MainWindow`.
 Poté je nutno nastavit **datové zdroje** pro
 - **DataGrid** -kolekce kterou si náš objekt `_taskService` drží
 - **ComboBox** - `TaskTypes` z výše definovaného typu
@@ -678,9 +678,9 @@ Začneme s nejzákladnější metodou.
    - Textbox
    - ComboBox
    - CheckBox
-- zkusit proměnit nasbíraná data na objekt `TaskItem` pomocí `_taskService.AddTask(title, type, isDone)` a výsledek operace uložit do proměnné `result`
-Třída `TaskItem` **vyžaduje** `boolean` hodnotu, avšak hodnota z CheckBoxu může být i `null`. Přetypování provedeme **porovnáním uživatelského vstupu s hodnotou `True`**.
+      - Třída `TaskItem` **vyžaduje** `boolean` hodnotu, avšak hodnota z CheckBoxu může být i `null`. Přetypování provedeme **porovnáním uživatelského vstupu s hodnotou `True`**.
 
+- zkusit proměnit nasbíraná data na objekt `TaskItem` pomocí `_taskService.AddTask(title, type, isDone)` a výsledek operace uložit do proměnné `result`
 ```csharp
 string title = textBoxTask.Text.Trim();
 TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
@@ -692,7 +692,9 @@ OperationResult result = _taskService.AddTask(title, type, isDone);
 2. Soubor `TaskService.cs`, třída `TaskService`, metoda `public OperationResult AddTask(string title, TaskType type, bool isDone)`
 - Ošetření nechtěných případů `if` statemnty a vrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage.
    - `title` je neplatný
-   - objekt `TaskItem` se stejným `task.Title` a `task.Type` již existuje v kolekci `TaskService.Tasks `
+   - objekt `TaskItem` se stejným `TaskItem.Title` a `TaskItem.Type` již existuje v kolekci `TaskService.Tasks `.
+      - `Tasks.Any(...)` - vyžaduje **predikát v podobě lambda funkce** (například `x => x % 2 == 0`). Metoda `Any` **iteruje** skrz naši kolekci a spouští naší predikátovou lambda funkci na **každý objekt** `TaskItem` kolekce `Tasks` (proměnná `x`). Pokud predikát platí pro **aslespoň jeden** objekt, vrací `true`, jinak `false`. 
+      - `x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type)` - predikát, lambda funkce. Porovnává (`x.Title.Equals(...)`) `x.Title` s `title` bez ohledu na na velikost písmen(`StringComparison.OrdinalIgnoreCase`) a zárověn porovnává stejnost hodnoty `x.Type`  a `type` . 
 - Pokud nechtěný případ nenastane, lze data proměnit v nový objekt třídy `TaskItem`, přidat jej do kolekce `TaskService.Tasks` a vrátit hodnotu `OperationResult.Success()`.
 
 ```csharp
@@ -702,14 +704,11 @@ OperationResult result = _taskService.AddTask(title, type, isDone);
      {
          return OperationResult.Failure("Title cannot be empty.");
      }
+    if (Tasks.Any(x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type))
+        {
+            return OperationResult.Failure("Task with same title and task type already exists.");
+        }
 
-     foreach (TaskItem task in Tasks)
-     {
-         if (task.Title.ToLower() == title.ToLower() && task.Type == type)
-         {
-             return OperationResult.Failure("Task with this title already exists.");
-         }
-     }
 
      TaskItem taskItem = new TaskItem(Guid.NewGuid(), title, type, isDone);
      Tasks.Add(taskItem);
@@ -777,8 +776,10 @@ OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
 - Ošetření nechtěných případů `if` statemanty a vrácení `OperationResult.Failure()` s **příslušnou** ErrorMessage
     - objekt je `null`
     - `title` je neplatný
-    - objekt `TaskItem` se stejným `task.Title` a `task.Type` již existuje v kolekci `TaskService.Tasks `
-        - Jelikož `TaskItem` objekty jsou **indexovány**, tak k nim můžeme lehčeji přistupovat a zjišťovat, zda objekty opravdu existují
+    - `TaskItem` vybraný k updatu nemá žádné změněné hodnoty
+    - objekt `TaskItem` se stejným `task.Title` a `task.Type` a `task.IsDone` již existuje v kolekci `TaskService.Tasks `
+        - predikát `x => x != task && x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type && x.IsDone == isDone` -testuje zda objekt `x` z interace `Tasks`(`Tasks.Any(...)`) **není** objekt `TaskItem` vybraný k updatu, ale přesto má stejné hodnoty
+    - Jelikož `TaskItem` objekty jsou **indexovány**, tak k nim můžeme lehčeji přistupovat a zjišťovat, zda objekty opravdu existují
         - **pokud hledaní indexu (`Tasks.IndexOf(task)`) objektu vrátí `-1`, objekt neexistuje**
 - **Až když nenastává žádný z nechtěných případů**, tak můžeme v kolekci `TaskService.Tasks` změnit stávající objekt `TaskItem` na nový objekt `TaskItem` **s novými hodnotami ale stejným indexem** a vrátit `OperationResult.Success()`
 
@@ -795,13 +796,16 @@ OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
          return OperationResult.Failure("Title cannot be empty.");
      }
 
-     foreach (TaskItem taskItem in Tasks)
+     if (task.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && task.Type == type && task.IsDone == isDone)
      {
-         if (task.Title.ToLower() == title.ToLower() && task.Type == type)
-         {
-             return OperationResult.Failure("Task with this title already exists.");
-         }
+        return OperationResult.Failure("Task cannot be updated as it was not modified.");
      }
+
+     if (Tasks.Any(x => x != task && x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type && x.IsDone == isDone))
+     {
+        return OperationResult.Failure("Task with same properties already exists.");
+     }
+    
 
      int index = Tasks.IndexOf(task);
      if (index == -1)
@@ -875,9 +879,10 @@ textBoxTask.Clear();
 ```
 
 ### Uložení úkolů
-Tato funkcionalita uloží aktuální úkoly do souboru serializací do formátu JSON.
+1. Soubor `MainWindow.xaml.cs` , metoda `private void SaveTasks_Click(object sender, RoutedEventArgs e)`
+- Pokus o uložení úkolů pomocí  `_taskService.SaveTasks()` a uložení do proměnné `result`
+- na základě `result` se ne/zobrazí příslušná ErrorMessage
 
-**Obslužná metoda v MainWindow.xaml.cs:**
 ```csharp
 /// <summary>
 /// Uloží úkoly do souboru.
@@ -891,7 +896,15 @@ private void SaveTasks_Click(object sender, RoutedEventArgs e)
     }
 }
 ```
-
+2. Soubor `TaskService.cs`, třída `TaskService` , metoda `public OperationResult SaveTasks()`
+- Pokus o uložení úkolů do JSON souboru (`try` blok)
+    - uložení JSON řetezce do proměnné `json` promocí `JsonSerializer.Serialize(...)`
+    - `Tasks` je objekt (naše kolekce úkolů) určen k serializaci
+    - `new JsonSerializerOptions()` vytvoří objekt určen k nastavení JSON serializace. `WriteIndented = true` způsobí, že JSON bude mít odsazení a zalomení řádků.
+    - `File.WriteAllText(path, json)` do (v případě prvního uložení nově vytvořeného) souboru, k němuž je označena cesta `path`, uloží `json`. `path` je  ve **výchozím nastavení  konstruktoru `TaskService`**.
+-Ošetření nezdaru (`catch` blok)
+    - při jakékoliv chybě se vrátí stejný `OperationResult.Failure(...)`
+- Při úspechu návrat z funkce s `OperationResult.Success()`
 ```csharp
 /// <inheritdoc/>
 public OperationResult SaveTasks()
@@ -911,8 +924,9 @@ public OperationResult SaveTasks()
 ```
 
 ### Načtení úkolů
-Tato funkcionalita načte úkoly ze souboru. Pokud soubor neexistuje, je vytvořen prázdný soubor. JSON data jsou následně deserializována do kolekce úkolů.
-
+1. Soubor `MainWindow.xaml.cs` , metoda `private void LoadTasks_Click(object sender, RoutedEventArgs e)`
+- Pokus o načtení úkolů pomocí  `_taskService.LoadTasks()` a uložení do proměnné `result`
+- na základě `result` se ne/zobrazí příslušná ErrorMessage
 ```csharp
 /// <summary>
 /// Načte úkoly ze souboru.
@@ -926,7 +940,17 @@ private void LoadTasks_Click(object sender, RoutedEventArgs e)
     }
 }
 ```
-
+2. Soubor `TaskService.cs`, třída `TaskService` , metoda `public OperationResult LoadTasks()`
+- Pokud soubor neexistuje, je pomocí `File.WriteAllText()` vytvořen (na cestě z výchozího nastavení `string path = tasks.json`) s prázdným obsahem (prázdným seznamem)
+- `ReadAllText(json)` načte celý obsah souboru do proměnné `json` jako řetezec
+- Deserializace a přidání úkolů do kolekce 
+    -`?` za `<TaskItem>` připouští hodnotu `null`
+    - `JsonSerializer.Deserialize<...>(...)` **deserializuje** z JSON řetězce na objekty `TaskItem` a přidá je do **lokální kolekce** `tasks`. Při jakékoliv chybě, například při špatném formátu, se vrátí `null`
+- ošetření nechtěného případu (hodnota `null`) pomocí `if` statemantu a navrácení `OperationResult.Failure(...)`
+- Načtení aktuálních úkolů
+    - vyčištění staré **třídní kolekce** `Tasks` kterou si za běhu programu drží objekt `_taskService`
+    - přidání aktuálních objektů `TaskItem`  z **lokální kolekce** `tasks` do **třídní kolekce** `Tasks`
+    - navrácení `OperationResult.Success()`
 ```csharp
 /// <inheritdoc/>
 public OperationResult LoadTasks()
@@ -963,7 +987,7 @@ Při otevření `Form1.cs[Návrh]` je na levé straně  **Panel nástrojů**.
 ![Visual Studio Setup](images/vyber0.png)
 3. Pro zjednodušení přejmenujeme uživatelské prvky tak, jak chceme aby se jmenovali jejich event handleři a přepíšeme text, který se uživateli zobrazí na prvku.
    - po kliknutí na uživatelský prvek je na levé straně dole panel **Vlastnosti**, tam budeme přejmenovávat.
-   - u DataGridu to bude náročnější, metoda SelectionChanged se dá nastavit ve událostech, bude ukázáno během hodiny. Screenshoty námi užitých vlastností a událostí Datagridu jsou ve složce images
+   - u DataGridu to bude náročnější, metoda SelectionChanged se dá nastavit ve událostech(v panelu Vlastnosti), bude ukázáno během hodiny. Screenshoty námi užitých vlastností a událostí Datagridu jsou ve složce images
 ![Visual Studio Setup](images/Name0.png)
 ![Visual Studio Setup](images/Name1.png)
 4. Kódy pro interakci s těmito uživatelskými prvky se zinicialiují v souboru `Form1.cs` dvojklikem na uživatelský prvek na okně **Form1** v souboru `Form1.cs[Návrh]`.
@@ -971,6 +995,7 @@ Při otevření `Form1.cs[Návrh]` je na levé straně  **Panel nástrojů**.
 ## Tvorba logiky
 Soubory `TaskService.cs` a `TaskItem.cs` zůustanou nepozměněné. Stačí je vytvořit, obsah z předchozí aplikace zkopírovat a vložit.
 # Logika Form1.cs
+Z důvodu ušetření všech zdrojů budou **popsány pouze změny oproti ToDoListu WPF**.
 Dbejte `using System.ComponentModel;`.
 Začátek souboru, tvorba objektu `_taskService` třídy `TaskService` a nastavení datových zdrojů bude vypadat následovně
 ```csharp
@@ -997,7 +1022,7 @@ public partial class Form1 : Form
 ```
 ### Funkce DataGridu
 1. `private void RefreshDataGrid()`
-Ve WinForms se Datagrid neaktualizuje s daty automaticky, proto je nutné tuto funkci nastavit. Bude při volána při těměř všech operacích.
+Ve WinForms se Datagrid **neaktualizuje s daty automaticky**, proto je nutné tuto funkci nastavit. Bude volána při těměř všech operacích.
 ```csharp
  private void RefreshDataGrid()
  {
@@ -1008,8 +1033,8 @@ Ve WinForms se Datagrid neaktualizuje s daty automaticky, proto je nutné tuto f
    - ošetření případu kdy je index zvoleného řádku větší než počet objektů v kolekci `_taskService.Tasks`
    - ošetření případu kdy zvolený objekt není objektem `TaskItem`
          - v opačném případě se objekt `TaskItem` uloží do proměnné `selectedTask`
-   - `?` za CurrentRow ošetřují případy kdy zvolený objekt je null
-   - roztřídění uživatelských vstupů do příslušných atributů objektu `TaskItem`
+   - `?` za CurrentRow ošetřují případy kdy zvolený objekt je `null`
+   - roztřídění uživatelských vstupů do **příslušných** atributů objektu `TaskItem`
 
 ```csharp
     private void DataGridTasks_SelectionChanged(object sender, EventArgs e)
@@ -1031,9 +1056,9 @@ Ve WinForms se Datagrid neaktualizuje s daty automaticky, proto je nutné tuto f
 ```
 ### Add Task
 
-Zinializovaný kód tlačítka pro funkci aplikace Add Task bude vypadat podobně, avšak je zde pár změn.
+Zinicializovaný kód tlačítka pro funkci aplikace Add Task bude vypadat podobně, avšak je zde pár změn.
 - Není potřeba přetypovat hodnotu CheckBoxu
-- Po operaci je potřeba aktualizovat `RefreshDataGrid()`.
+- Po operaci je potřeba aktualizovat data - `RefreshDataGrid()`.
 
 
 ```csharp
