@@ -694,7 +694,7 @@ OperationResult result = _taskService.AddTask(title, type, isDone);
    - `title` je neplatný
    - objekt `TaskItem` se stejným `TaskItem.Title` a `TaskItem.Type` již existuje v kolekci `TaskService.Tasks `.
       - `Tasks.Any(...)` - vyžaduje **predikát v podobě lambda funkce** (například `x => x % 2 == 0`). Metoda `Any` **iteruje** skrz naši kolekci a spouští naší predikátovou lambda funkci na **každý objekt** `TaskItem` kolekce `Tasks` (proměnná `x`). Pokud predikát platí pro **aslespoň jeden** objekt, vrací `true`, jinak `false`. 
-      - `x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type)` - predikát, lambda funkce. Porovnává (`x.Title.Equals(...)`) `x.Title` s `title` bez ohledu na na velikost písmen(`StringComparison.OrdinalIgnoreCase`) a zárověn porovnává stejnost hodnoty `x.Type`  a `type` . 
+      - `x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type)` - predikát, lambda funkce. Porovnává (`x.Title.Equals(...)`) `x.Title` s `title` bez ohledu na velikost písmen(`StringComparison.OrdinalIgnoreCase`) a zárověn porovnává stejnost hodnoty `x.Type`  a `type` . 
 - Pokud nechtěný případ nenastane, lze data proměnit v nový objekt třídy `TaskItem`, přidat jej do kolekce `TaskService.Tasks` a vrátit hodnotu `OperationResult.Success()`.
 
 ```csharp
@@ -778,7 +778,7 @@ OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
     - `title` je neplatný
     - `TaskItem` vybraný k updatu nemá žádné změněné hodnoty
     - objekt `TaskItem` se stejným `task.Title` a `task.Type` a `task.IsDone` již existuje v kolekci `TaskService.Tasks `
-        - predikát `x => x != task && x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type && x.IsDone == isDone` -testuje zda objekt `x` z interace `Tasks`(`Tasks.Any(...)`) **není** objekt `TaskItem` vybraný k updatu, ale přesto má stejné hodnoty
+        - predikát `x => x != task && x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type && x.IsDone == isDone` testuje zda objekt `x` z interace `Tasks`(`Tasks.Any(...)`) **není** objekt `TaskItem` vybraný k updatu (parametr `task`), ale přesto má stejné hodnoty
     - Jelikož `TaskItem` objekty jsou **indexovány**, tak k nim můžeme lehčeji přistupovat a zjišťovat, zda objekty opravdu existují
         - **pokud hledaní indexu (`Tasks.IndexOf(task)`) objektu vrátí `-1`, objekt neexistuje**
 - **Až když nenastává žádný z nechtěných případů**, tak můžeme v kolekci `TaskService.Tasks` změnit stávající objekt `TaskItem` na nový objekt `TaskItem` **s novými hodnotami ale stejným indexem** a vrátit `OperationResult.Success()`
