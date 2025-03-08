@@ -902,7 +902,7 @@ private void SaveTasks_Click(object sender, RoutedEventArgs e)
     - `Tasks` je objekt (naše kolekce úkolů) určen k serializaci
     - `new JsonSerializerOptions()` vytvoří objekt určen k nastavení JSON serializace. `WriteIndented = true` způsobí, že JSON bude mít odsazení a zalomení řádků.
     - `File.WriteAllText(path, json)` do (v případě prvního uložení nově vytvořeného) souboru, k němuž je označena cesta `path`, uloží `json`. `path` je  ve **výchozím nastavení  konstruktoru `TaskService`**.
--Ošetření nezdaru (`catch` blok)
+- Ošetření nezdaru (`catch` blok)
     - při jakékoliv chybě se vrátí stejný `OperationResult.Failure(...)`
 - Při úspechu návrat z funkce s `OperationResult.Success()`
 ```csharp
