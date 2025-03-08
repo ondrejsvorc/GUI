@@ -944,7 +944,7 @@ private void LoadTasks_Click(object sender, RoutedEventArgs e)
 - Pokud soubor neexistuje, je pomocí `File.WriteAllText()` vytvořen (na cestě z výchozího nastavení `string path = tasks.json`) s prázdným obsahem (prázdným seznamem)
 - `ReadAllText(json)` načte celý obsah souboru do proměnné `json` jako řetezec
 - Deserializace a přidání úkolů do kolekce 
-    -`?` za `<TaskItem>` připouští hodnotu `null`
+    - `?` za `<TaskItem>` připouští hodnotu `null`
     - `JsonSerializer.Deserialize<...>(...)` **deserializuje** z JSON řetězce na objekty `TaskItem` a přidá je do **lokální kolekce** `tasks`. Při jakékoliv chybě, například při špatném formátu, se vrátí `null`
 - ošetření nechtěného případu (hodnota `null`) pomocí `if` statemantu a navrácení `OperationResult.Failure(...)`
 - Načtení aktuálních úkolů
