@@ -780,10 +780,12 @@ OperationResult result = _taskService.AddTask(title, type, isDone);
 
 2. **File `TaskService.cs`, class `TaskService`, method `public OperationResult AddTask(string title, TaskType type, bool isDone)`**  
    - Handle unwanted cases with `if` statements and return `OperationResult.Failure()` with a **corresponding** ErrorMessage:  
-       - `title` is invalid  
-       - A `TaskItem` object with the same `task.Title` and `task.Type` already exists in the collection `TaskService.Tasks`  
-   - If no unwanted case occurs, convert the data into a new `TaskItem` object, add it to the collection `TaskService.Tasks`, and return `OperationResult.Success()`.
+      - `title` is invalid  
+   - An object `TaskItem` with the same `TaskItem.Title` and `TaskItem.Type` already exists in the collection `TaskService.Tasks`.  
+      - `Tasks.Any(...)` requires a **predicate in the form of a lambda function** (e.g., `x => x % 2 == 0`). The `Any` method **iterates** through our collection and applies our predicate lambda function to **each object** `TaskItem` in the `Tasks` collection (variable `x`). If the predicate is true for **at least one** object, it returns `true`; otherwise, it returns `false`.  
+      - `x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type)` - a predicate, a lambda function. It compares (`x.Title.Equals(...)`) `x.Title` with `title` ignoring case (`StringComparison.OrdinalIgnoreCase`) and simultaneously compares the equality of the values of `x.Type` and `type`.  
 
+   - If no unwanted case occurs, convert the data into a new `TaskItem` object, add it to the collection `TaskService.Tasks`, and return `OperationResult.Success()`.
 ```csharp
 public OperationResult AddTask(string title, TaskType type, bool isDone)
 {
@@ -791,14 +793,11 @@ public OperationResult AddTask(string title, TaskType type, bool isDone)
     {
         return OperationResult.Failure("Title cannot be empty.");
     }
-
-    foreach (TaskItem task in Tasks)
+    if (Tasks.Any(x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type))
     {
-        if (task.Title.ToLower() == title.ToLower() && task.Type == type)
-        {
-            return OperationResult.Failure("Task with this title already exists.");
-        }
+            return OperationResult.Failure("Task with same title and task type already exists.");
     }
+
 
     TaskItem taskItem = new TaskItem(Guid.NewGuid(), title, type, isDone);
     Tasks.Add(taskItem);
@@ -872,15 +871,16 @@ bool isDone = checkBoxIsDone.IsChecked == true;
 
 OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
 ```
-
 2. **File `TaskService.cs`, class `TaskService`, method `public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)`**  
    - Handle unwanted cases with `if` statements and return `OperationResult.Failure()` with a **corresponding** ErrorMessage:  
-       - The object is `null`  
-       - `title` is invalid  
-       - A `TaskItem` object with the same `task.Title` and `task.Type` already exists in the collection `TaskService.Tasks`  
-       - Since `TaskItem` objects are **indexed**, we can more easily check if the objects actually exist:  
-             - **if the index search (`Tasks.IndexOf(task)`) returns `-1`, the object does not exist**  
-   - Only if no unwanted case arises, replace the existing `TaskItem` object in the collection `TaskService.Tasks` with a new `TaskItem` object **with new values but the same index** and return `OperationResult.Success()`.
+      - The object is `null`  
+      - `title` is invalid  
+      - The `TaskItem` selected for update has no changed values.  
+      - An object `TaskItem` with the same `task.Title`, `task.Type`, and `task.IsDone` already exists in the collection `TaskService.Tasks`.  
+         - The predicate `x => x != task && x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type && x.IsDone == isDone` tests whether the object `x` from the `Tasks` interface (`Tasks.Any(...)`) **is not** the `TaskItem` selected for update, but still has the same values.  
+   - Since `TaskItem` objects are **indexed**, we can more easily access them and check if the objects really exist.  
+      - **If the search for the index (`Tasks.IndexOf(task)`) returns `-1`, the object does not exist.**  
+   - **Only when none of the unwanted cases occur**, can we change the existing `TaskItem` object in the `TaskService.Tasks` collection to a new `TaskItem` object **with new values but the same index** and return `OperationResu
 
 ```csharp
 public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)
@@ -894,14 +894,17 @@ public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bo
     {
         return OperationResult.Failure("Title cannot be empty.");
     }
-
-    foreach (TaskItem taskItem in Tasks)
+    if (task.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && task.Type == type && task.IsDone == isDone)
     {
-        if (task.Title.ToLower() == title.ToLower() && task.Type == type)
-        {
-            return OperationResult.Failure("Task with this title already exists.");
-        }
+        return OperationResult.Failure("Task cannot be updated as it was not modified.");
     }
+
+    if (Tasks.Any(x => x != task && x.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && x.Type == type && x.IsDone == isDone))
+    {
+        return OperationResult.Failure("Task with same properties already exists.");
+    }
+
+
 
     int index = Tasks.IndexOf(task);
     if (index == -1)
@@ -982,9 +985,9 @@ textBoxTask.Clear();
 ```
 
 ### Save Tasks
-This functionality saves the current tasks to a file by serializing them into a JSON format.
-
-**Event Handler in MainWindow.xaml.cs:**
+1. File `MainWindow.xaml.cs`, method `private void SaveTasks_Click(object sender, RoutedEventArgs e)`
+    - Attempt to save tasks using `_taskService.SaveTasks()` and store the result in the variable `result`.
+    - Based on `result`, the corresponding ErrorMessage is shown/not shown.
 ```csharp
 /// <summary>
 /// Saves tasks to a file.
@@ -998,6 +1001,16 @@ private void SaveTasks_Click(object sender, RoutedEventArgs e)
     }
 }
 ```
+2. File `TaskService.cs`, class `TaskService`, method `public OperationResult SaveTasks()`
+    - Attempt to save tasks to a JSON file (`try` block)
+        - The JSON string is saved to the `json` variable using `JsonSerializer.Serialize(...)`.
+        - `Tasks` is the object (our task collection) designated for serialization.
+        - `new JsonSerializerOptions()` creates an object intended for setting up JSON serialization. `WriteIndented = true` ensures that the JSON will have indentation and line breaks.
+        - `File.WriteAllText(path, json)` writes the `json` to the file located at the `path`, which is set by default in the constructor of `TaskService`.
+    - Error handling (`catch` block)
+        - In case of any error, the same `OperationResult.Failure(...)` is returned.
+    - On success, the function returns `OperationResult.Success()`.
+
 
 ```csharp
 /// <inheritdoc/>
@@ -1018,8 +1031,9 @@ public OperationResult SaveTasks()
 ```
 
 ### Load Tasks
-This functionality loads tasks from a file. If the file does not exist, an empty file is created. The JSON data is then deserialized into a collection of tasks.
-
+1. File `MainWindow.xaml.cs`, method `private void LoadTasks_Click(object sender, RoutedEventArgs e)`
+    - Attempt to load tasks using `_taskService.LoadTasks()` and store the result in the variable `result`.
+    - Based on `result`, the corresponding ErrorMessage is shown/not shown.
 ```csharp
 /// <summary>
 /// Loads tasks from a file.
@@ -1033,7 +1047,17 @@ private void LoadTasks_Click(object sender, RoutedEventArgs e)
     }
 }
 ```
-
+2. File `TaskService.cs`, class `TaskService`, method `public OperationResult LoadTasks()`
+    - If the file does not exist, it is created using `File.WriteAllText()` (at the path set by default `string path = tasks.json`) with empty content (an empty list).
+    - `ReadAllText(json)` reads the entire content of the file into the `json` variable as a string.
+    - Deserialization and adding tasks to the collection
+        - `?` after `<TaskItem>` allows for a `null` value.
+        - `JsonSerializer.Deserialize<...>(...)` **deserializes** the JSON string into `TaskItem` objects and adds them to the **local collection** `tasks`. In case of any error, such as an incorrect format, it returns `null`.
+    - Handling the unwanted case (a `null` value) using an `if` statement and returning `OperationResult.Failure(...)`.
+    - Loading the current tasks
+        - Clearing the old **class-level collection** `Tasks` that is maintained by the `_taskService` object during the program's execution.
+        - Adding current `TaskItem` objects from the **local collection** `tasks` to the **class-level collection** `Tasks`.
+        - Returning `OperationResult.Success()`.
 ```csharp
 /// <inheritdoc/>
 public OperationResult LoadTasks()
