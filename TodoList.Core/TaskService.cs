@@ -39,7 +39,7 @@ public class TaskService(string path = "tasks.json") : ITaskService
             return OperationResult.Failure("Title cannot be empty.");
         }
 
-        if (task.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && task.Type == type && task.IsDone == isDone)
+        if (task.Title.Equals(title, StringComparison.OrdinalIgnoreCase) && task.Type == type && task.IsDone == isDone && task.Deadline == deadline)
         {
             return OperationResult.Failure("Task cannot be updated as it was not modified.");
         }
