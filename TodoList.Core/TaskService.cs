@@ -9,7 +9,7 @@ public class TaskService(string path = "tasks.json") : ITaskService
     public ObservableCollection<TaskItem> Tasks { get; } = [];
 
     /// <inheritdoc/>
-    public OperationResult AddTask(string title, TaskType type, bool isDone)
+    public OperationResult AddTask(string title, TaskType type, bool isDone, DateTime deadline)
     {
         if (string.IsNullOrEmpty(title))
         {
@@ -21,13 +21,13 @@ public class TaskService(string path = "tasks.json") : ITaskService
             return OperationResult.Failure("Task with same title and task type already exists.");
         }
 
-        TaskItem taskItem = new TaskItem(Guid.NewGuid(), title, type, isDone);
+        TaskItem taskItem = new TaskItem(Guid.NewGuid(), title, deadline, type, isDone);
         Tasks.Add(taskItem);
         return OperationResult.Success();
     }
 
     /// <inheritdoc/>
-    public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone)
+    public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone, DateTime deadline)
     {
         if (task is null)
         {
@@ -55,7 +55,7 @@ public class TaskService(string path = "tasks.json") : ITaskService
             return OperationResult.Failure("Task not found.");
         }
 
-        Tasks[index] = new TaskItem(task.Id, title, type, isDone);
+        Tasks[index] = new TaskItem(task.Id, title, deadline, type, isDone);
         return OperationResult.Success();
     }
 
@@ -135,7 +135,7 @@ public interface ITaskService
     /// <param name="type">Task type.</param>
     /// <param name="isDone">Task completion status.</param>
     /// <returns>Success or failure result.</returns>
-    public OperationResult AddTask(string title, TaskType type, bool isDone);
+    public OperationResult AddTask(string title, TaskType type, bool isDone, DateTime deadline);
 
     /// <summary>
     /// Updates an existing task.
@@ -145,7 +145,7 @@ public interface ITaskService
     /// <param name="type">New task type.</param>
     /// <param name="isDone">New task completion status.</param>
     /// <returns>Success or failure result.</returns>
-    public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone);
+    public OperationResult UpdateTask(TaskItem task, string title, TaskType type, bool isDone, DateTime deadline);
 
     /// <summary>
     /// Removes a task.

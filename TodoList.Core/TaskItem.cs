@@ -7,7 +7,7 @@
 /// <param name="Title">Task title.</param>
 /// <param name="Type">Task type.</param>
 /// <param name="IsDone">Task completion status.</param>
-public record TaskItem(Guid Id, string Title, TaskType Type = TaskType.Other, bool IsDone = false);
+public record TaskItem(Guid Id, string Title, DateTime Deadline, TaskType Type = TaskType.Other, bool IsDone = false);
 
 /// <summary>
 /// Represents the task type.
