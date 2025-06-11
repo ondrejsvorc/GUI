@@ -64,6 +64,7 @@ public partial class MainWindow : Window
         TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
         bool isDone = checkBoxIsDone.IsChecked == true;
         DateTime? deadline = datePickerDeadline.SelectedDate;
+
         if (deadline is null)
         {
             MessageBox.Show("Please select a deadline.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
