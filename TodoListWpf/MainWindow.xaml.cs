@@ -31,8 +31,15 @@ public partial class MainWindow : Window
         string title = textBoxTask.Text.Trim();
         TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
         bool isDone = checkBoxIsDone.IsChecked == true;
+        DateTime? deadline = datePickerDeadline.SelectedDate;
 
-        OperationResult result = _taskService.AddTask(title, type, isDone);
+        if (deadline is null)
+        {
+            MessageBox.Show("Please select a deadline.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        OperationResult result = _taskService.AddTask(title, type, isDone, (DateTime)deadline);
         if (!result.IsSuccess)
         {
             MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -56,8 +63,14 @@ public partial class MainWindow : Window
         string title = textBoxTask.Text.Trim();
         TaskType type = (TaskType)comboBoxTaskType.SelectedItem;
         bool isDone = checkBoxIsDone.IsChecked == true;
+        DateTime? deadline = datePickerDeadline.SelectedDate;
+        if (deadline is null)
+        {
+            MessageBox.Show("Please select a deadline.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
 
-        OperationResult result = _taskService.UpdateTask(task, title, type, isDone);
+        OperationResult result = _taskService.UpdateTask(task, title, type, isDone, (DateTime)deadline);
         if (!result.IsSuccess)
         {
             MessageBox.Show(result.ErrorMessage, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -100,6 +113,7 @@ public partial class MainWindow : Window
         textBoxTask.Text = task.Title;
         comboBoxTaskType.SelectedItem = task.Type;
         checkBoxIsDone.IsChecked = task.IsDone;
+        datePickerDeadline.SelectedDate = task.Deadline;
     }
 
     /// <summary>

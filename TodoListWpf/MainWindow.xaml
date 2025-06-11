@@ -116,6 +116,10 @@
                     BorderThickness="1"
                     ToolTip="Select task type">
                 </ComboBox>
+				<DatePicker
+					x:Name="datePickerDeadline"
+					VerticalAlignment="Center" 
+				></DatePicker>
 
                 <!-- CheckBox pro nastavení stavu úkolu -->
                 <CheckBox 
