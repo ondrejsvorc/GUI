@@ -2,6 +2,7 @@
     x:Class="TodoListWpf.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:TodoListWpf"
     Title="TODO List"
     Height="600"
     Width="700"
@@ -11,6 +12,10 @@
     Foreground="#CCCCCC"
     HorizontalAlignment="Center"
     VerticalAlignment="Center">
+
+    <Window.Resources>
+        <local:DeadlineToColorConverter x:Key="DeadlineToColorConverter"/>
+    </Window.Resources>
 
     <!-- Hlavní mřížka -->
     <Grid Margin="10">
@@ -76,7 +81,13 @@
                 <DataGridTextColumn 
                     Header="Deadline"
                     Binding="{Binding Deadline, StringFormat='{}{0:dd.MM.yyyy}'}"
-                    Width="150"/>
+                    Width="150">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Background" Value="{Binding Deadline, Converter={StaticResource DeadlineToColorConverter}}"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
 
                 <!-- Sloupec pro stav úkolu -->
                 <DataGridCheckBoxColumn 
